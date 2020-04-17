@@ -1,0 +1,469 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>vim编辑器常用指令 | maguichang</title>
+<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1587126666894">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://maguichang.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="vim编辑器常用指令 | maguichang - Atom Feed" href="https://maguichang.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="一、一般指令模式（command mode）：
+1.1 移动游标方法
+
+
+
+指令
+代表含义
+
+
+
+
+[Ctrl]+[f]
+向下移动一页，相当于[Page Down]
+
+
+[Ctrl]+[b]
+向上移动一页，相当于[Page Up]
+
+
+0或..." />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://maguichang.github.io">
+  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1587126666894" alt="">
+  </a>
+  <h1 class="site-title">
+    maguichang
+  </h1>
+  <p class="site-description">
+    操千曲而后晓声，观千剑而后识器
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              vim编辑器常用指令
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-04-17
+              </span>
+              <span>
+                4 min read
+              </span>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h2 id="一-一般指令模式command-mode">一、一般指令模式（command mode）：</h2>
+<h3 id="11-移动游标方法">1.1 移动游标方法</h3>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>代表含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[Ctrl]+[f]</td>
+<td>向下移动一页，相当于[Page Down]</td>
+</tr>
+<tr>
+<td>[Ctrl]+[b]</td>
+<td>向上移动一页，相当于[Page Up]</td>
+</tr>
+<tr>
+<td>0或者功能键[Home]</td>
+<td>移动到行最左侧</td>
+</tr>
+<tr>
+<td>$或者功能键[End]</td>
+<td>移动到行最右侧</td>
+</tr>
+<tr>
+<td><code>G</code></td>
+<td>移动到文档最后一列</td>
+</tr>
+<tr>
+<td>nG</td>
+<td>n代表数字，移动到第n行(可配合:set nu)</td>
+</tr>
+<tr>
+<td><code>gg</code></td>
+<td>移动到第一行，相当于1G</td>
+</tr>
+<tr>
+<td>n[Enter]</td>
+<td>n为数字。游标向下移动n行</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-保存离开">1.2 保存离开</h3>
+<table>
+<thead>
+<tr>
+<th>指 令</th>
+<th>代表含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>:q!</td>
+<td>强制离开，不存储档案</td>
+</tr>
+<tr>
+<td>:wq</td>
+<td>储存后离开</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-删除-复制和粘贴">1.3 删除、复制和粘贴</h3>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>代表含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>x,X</td>
+<td>x为向后删除一个字符（相当于[del]），X为向前删除一个字符（相当于[backspace]）</td>
+</tr>
+<tr>
+<td><code>dd</code></td>
+<td>删除游标所在的一整行（可以理解为剪切，p对dd同样有效）</td>
+</tr>
+<tr>
+<td>ndd</td>
+<td>n表示数字，删除游标所在的向下n行</td>
+</tr>
+<tr>
+<td><code>yy</code></td>
+<td>复制游标所在行</td>
+</tr>
+<tr>
+<td>nyy</td>
+<td>n表示数字，复制游标所在的向下n行</td>
+</tr>
+<tr>
+<td><code>p</code>,<code>P</code></td>
+<td>p为粘贴插入到游标下一行，原始的文档向后推，P为上一行</td>
+</tr>
+<tr>
+<td><code>u</code></td>
+<td>复原上一个动作（撤销）</td>
+</tr>
+<tr>
+<td>Ctrl+r</td>
+<td>重复上一个动作</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>小数点，重复上一个动作</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-搜索与替换">1.4 搜索与替换</h3>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>代表含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/word</td>
+<td>从光标处开始<code>向下</code>查找名为word的字符串</td>
+</tr>
+<tr>
+<td>?word</td>
+<td>从光标处开始<code>向上</code>查找名为word的字符串</td>
+</tr>
+<tr>
+<td>n</td>
+<td>重复上一个搜索动作</td>
+</tr>
+<tr>
+<td>N</td>
+<td>与n功能相反（反向搜索）</td>
+</tr>
+<tr>
+<td>:n1,n2s/word1/word2/g</td>
+<td>n1与n2为数字。在第n1与n2列之间寻找word1这个字串，并将该字串取代为word2 ！举例来说，在100到200列之间搜寻vim并取代为VIM则 :100,200s/vim/VIM/g</td>
+</tr>
+<tr>
+<td>:1,$s/word1/word2/g</td>
+<td>从第一列到最后一列寻找word1字串，并将该字串取代为word2</td>
+</tr>
+<tr>
+<td>:1,$s/word1/word2/gc</td>
+<td>从第一列到最后一列寻找word1字串，并将该字串取代为word2 ，且在取代前显示提示字元给使用者确认(confirm)是否需要取代</td>
+</tr>
+<tr>
+<td>😒/old/new/</td>
+<td>用old替换new，替换当前行的第一个匹配</td>
+</tr>
+<tr>
+<td>😒/old/new/g</td>
+<td>用old替换new，替换当前行的所有匹配</td>
+</tr>
+<tr>
+<td>:%s/old/new/</td>
+<td>用old替换new，替换所有行的第一个匹配</td>
+</tr>
+<tr>
+<td>:%s/old/new/g</td>
+<td>用old替换new，替换整个文件的所有匹配</td>
+</tr>
+</tbody>
+</table>
+<h3 id="15-撤销与重做">1.5 撤销与重做</h3>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>代表含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>u</td>
+<td>撤销(undo)</td>
+</tr>
+<tr>
+<td>U</td>
+<td>撤销对整行的操作</td>
+</tr>
+</tbody>
+</table>
+<h3 id="16-区块选择操作">1.6 区块选择操作</h3>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>代表含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v</td>
+<td>字元选择，会将游标经过的地方反白选择！</td>
+</tr>
+<tr>
+<td>V</td>
+<td>列选择，会将游标经过的列反白选择！</td>
+</tr>
+<tr>
+<td>Ctrl+v</td>
+<td>区块选择，可以用长方形的方式选择资料</td>
+</tr>
+<tr>
+<td>y</td>
+<td>将反白的地方复制起来</td>
+</tr>
+<tr>
+<td>d</td>
+<td>将反白的地方删除掉</td>
+</tr>
+<tr>
+<td>p</td>
+<td>将刚刚复制的区块，在游标所在处贴上！</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二-一般指令模式切换到编辑模式">二、一般指令模式切换到编辑模式：</h2>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>代表含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>i或I</code></td>
+<td>进入插入模式(Insert mode)：i为『从目前游标所在处插入』， I为『在目前所在列的第一个非空白字元处开始插入』。</td>
+</tr>
+<tr>
+<td><code>a或A</code></td>
+<td>进入插入模式(Insert mode)：a为『从目前游标所在的下一个字元处开始插入』， A为『从游标所在列的最后一个字元处开始插入』。</td>
+</tr>
+<tr>
+<td><code>o或O</code></td>
+<td>进入插入模式(Insert mode)：这是英文字母o的大小写。o为『在目前游标所在的下一列处插入新的一列』； O为在目前游标所在处的上一列插入新的一列！</td>
+</tr>
+<tr>
+<td><code>r或R</code></td>
+<td>进入取代模式(Replace mode)：r只会取代游标所在的那一个字元一次；R会一直取代游标所在的文字，直到按下ESC为止；</td>
+</tr>
+</tbody>
+</table>
+<h3 id="vim编辑器页面设置">vim编辑器页面设置</h3>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>代表含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:set nu</code></td>
+<td>设置vim编辑器显示行号</td>
+</tr>
+<tr>
+<td><code>:set nonu</code></td>
+<td>取消行号</td>
+</tr>
+</tbody>
+</table>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E4%B8%80-%E4%B8%80%E8%88%AC%E6%8C%87%E4%BB%A4%E6%A8%A1%E5%BC%8Fcommand-mode">一、一般指令模式（command mode）：</a>
+<ul>
+<li><a href="#11-%E7%A7%BB%E5%8A%A8%E6%B8%B8%E6%A0%87%E6%96%B9%E6%B3%95">1.1 移动游标方法</a></li>
+<li><a href="#12-%E4%BF%9D%E5%AD%98%E7%A6%BB%E5%BC%80">1.2 保存离开</a></li>
+<li><a href="#13-%E5%88%A0%E9%99%A4-%E5%A4%8D%E5%88%B6%E5%92%8C%E7%B2%98%E8%B4%B4">1.3 删除、复制和粘贴</a></li>
+<li><a href="#14-%E6%90%9C%E7%B4%A2%E4%B8%8E%E6%9B%BF%E6%8D%A2">1.4 搜索与替换</a></li>
+<li><a href="#15-%E6%92%A4%E9%94%80%E4%B8%8E%E9%87%8D%E5%81%9A">1.5 撤销与重做</a></li>
+<li><a href="#16-%E5%8C%BA%E5%9D%97%E9%80%89%E6%8B%A9%E6%93%8D%E4%BD%9C">1.6 区块选择操作</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BA%8C-%E4%B8%80%E8%88%AC%E6%8C%87%E4%BB%A4%E6%A8%A1%E5%BC%8F%E5%88%87%E6%8D%A2%E5%88%B0%E7%BC%96%E8%BE%91%E6%A8%A1%E5%BC%8F">二、一般指令模式切换到编辑模式：</a>
+<ul>
+<li><a href="#vim%E7%BC%96%E8%BE%91%E5%99%A8%E9%A1%B5%E9%9D%A2%E8%AE%BE%E7%BD%AE">vim编辑器页面设置</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://maguichang.github.io/post/linux-ji-chu-ming-ling/">
+              <h3 class="post-title">
+                linux基础命令
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://maguichang.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
