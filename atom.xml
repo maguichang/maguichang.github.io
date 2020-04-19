@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://maguichang.github.io</id>
     <title>maguichang</title>
-    <updated>2020-04-19T06:17:40.973Z</updated>
+    <updated>2020-04-19T06:44:40.359Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://maguichang.github.io"/>
     <link rel="self" href="https://maguichang.github.io/atom.xml"/>
@@ -10,6 +10,75 @@
     <logo>https://maguichang.github.io/images/avatar.png</logo>
     <icon>https://maguichang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, maguichang</rights>
+    <entry>
+        <title type="html"><![CDATA[MySQL离线安装自动化部署脚本]]></title>
+        <id>https://maguichang.github.io/post/mysql-chi-xian-an-zhuang-zi-dong-hua-bu-shu-jiao-ben/</id>
+        <link href="https://maguichang.github.io/post/mysql-chi-xian-an-zhuang-zi-dong-hua-bu-shu-jiao-ben/">
+        </link>
+        <updated>2020-04-19T06:36:01.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="1-版本-5727">1、 版本 5.7.27</h2>
+<h2 id="2-安装包">2、安装包</h2>
+<ul>
+<li>mysql-5.7.27-1.el7.x86_64.rpm-bundle.tar</li>
+</ul>
+<h2 id="3-部署脚本">3、 部署脚本</h2>
+<ul>
+<li>在mysql安装包同级目录，新建mysql_install.sh,写入以下内容</li>
+</ul>
+<pre><code class="language-bash">#!/bin/bash
+INSTALL_PACKAGE_PATH=&quot;./mysql-5.7.27-1.el7.x86_64.rpm-bundle.tar&quot;
+ 
+function init_environment(){
+    rpm -e --nodeps mariadb-libs
+    echo &quot;uninstall about mariadb&quot;
+}
+ 
+function change_password(){
+    findpass=$(grep 'temporary password' /var/log/mysqld.log)
+    initpass=${findpass##* }
+    echo $initpass
+    NEWPASS=&quot;Root@123456&quot;
+    echo $NEWPASS
+    SQL=&quot;ALTER USER 'root'@'localhost' IDENTIFIED BY \&quot;${NEWPASS}\&quot;;GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY \&quot;${NEWPASS}\&quot; WITH GRANT OPTION;flush privileges;&quot;
+    echo $SQL
+    mysql --connect-expired-password --password=&quot;$initpass&quot; -e &quot;${SQL}&quot;
+    if [ $? -eq 0 ]
+    then
+        echo &quot;change password success&quot;
+    else
+        echo &quot;change password fail&quot;
+        exit
+    fi
+} 
+ 
+function install(){
+    yum -y install libaio numactl libaio-devel autoconf net-tools perl
+	init_environment
+    echo &quot;Start the installation&quot;
+    tar -xvf $INSTALL_PACKAGE_PATH
+    RPM_EXE=`ls |grep mysql-community-common*`
+    rpm -ivh $RPM_EXE
+    RPM_EXE=`ls |grep mysql-community-libs-8*`
+    rpm -ivh $RPM_EXE
+    RPM_EXE=`ls |grep mysql-community-client*`
+    rpm -ivh $RPM_EXE
+    RPM_EXE=`ls |grep mysql-community-server*`
+    rpm -ivh $RPM_EXE
+    groupadd mysql
+    useradd -g mysql mysql
+    mysqld --initialize --user=mysql
+    mysqld --initialize-insecure --user=mysql
+    systemctl start mysqld
+    change_password
+}
+ 
+install
+</code></pre>
+<ul>
+<li>运行安装脚本， sh mysql_install.sh</li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[centos 挂载磁盘空间]]></title>
         <id>https://maguichang.github.io/post/centos-gua-zai-ci-pan-kong-jian/</id>
