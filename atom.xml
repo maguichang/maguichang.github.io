@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://maguichang.github.io</id>
     <title>maguichang</title>
-    <updated>2020-04-20T00:31:38.397Z</updated>
+    <updated>2020-04-22T02:12:24.192Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://maguichang.github.io"/>
     <link rel="self" href="https://maguichang.github.io/atom.xml"/>
@@ -10,6 +10,33 @@
     <logo>https://maguichang.github.io/images/avatar.png</logo>
     <icon>https://maguichang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, maguichang</rights>
+    <entry>
+        <title type="html"><![CDATA[linux修改常用下载源]]></title>
+        <id>https://maguichang.github.io/post/linux-xiu-gai-chang-yong-xia-zai-yuan/</id>
+        <link href="https://maguichang.github.io/post/linux-xiu-gai-chang-yong-xia-zai-yuan/">
+        </link>
+        <updated>2020-04-22T02:11:22.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="一-pip">一、pip</h2>
+<h3 id="11-linux下pip安装">1.1 linux下pip安装</h3>
+<pre><code class="language-bash">yum -y install epel-release
+yum -y install python-pip      
+# 查看pip版本
+pip --version
+# 更新pip
+pip install --upgrade pip
+
+</code></pre>
+<h3 id="12-pip源更换">1.2 pip源更换</h3>
+<pre><code class="language-bash">mkdir /root/.pip
+cd /root/.pip
+vim pip.conf
+[global]
+index-url=http://mirrors.aliyun.com/pypi/simple/
+[install]
+trusted-host=mirrors.aliyun.com
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[MySQL离线安装自动化部署脚本]]></title>
         <id>https://maguichang.github.io/post/mysql-chi-xian-an-zhuang-zi-dong-hua-bu-shu-jiao-ben/</id>
