@@ -1,22 +1,100 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://maguichang.github.io</id>
-    <title>maguichang</title>
-    <updated>2020-04-24T11:08:02.617Z</updated>
-    <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://maguichang.github.io"/>
-    <link rel="self" href="https://maguichang.github.io/atom.xml"/>
-    <subtitle>操千曲而后晓声，观千剑而后识器</subtitle>
-    <logo>https://maguichang.github.io/images/avatar.png</logo>
-    <icon>https://maguichang.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, maguichang</rights>
-    <entry>
-        <title type="html"><![CDATA[大数据集群生产环境部署CDH]]></title>
-        <id>https://maguichang.github.io/post/da-shu-ju-ji-qun-sheng-chan-huan-jing-bu-shu-cdh/</id>
-        <link href="https://maguichang.github.io/post/da-shu-ju-ji-qun-sheng-chan-huan-jing-bu-shu-cdh/">
-        </link>
-        <updated>2020-04-24T10:57:07.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="cdh-安装配置文档">CDH 安装配置文档</h2>
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>大数据集群生产环境部署CDH | maguichang</title>
+<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1587726478676">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://maguichang.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="大数据集群生产环境部署CDH | maguichang - Atom Feed" href="https://maguichang.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="CDH 安装配置文档
+
+CDH (Cloudera’s Distribution, including Apache Hadoop)，是Hadoop众多分支中的一种，由Cloudera维护，基于稳定版本的Apache Hadoop构建，并集..." />
+    <meta name="keywords" content="大数据" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://maguichang.github.io">
+  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1587726478676" alt="">
+  </a>
+  <h1 class="site-title">
+    maguichang
+  </h1>
+  <p class="site-description">
+    操千曲而后晓声，观千剑而后识器
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              大数据集群生产环境部署CDH
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-04-24
+              </span>
+              <span>
+                31 min read
+              </span>
+              
+                <a href="https://maguichang.github.io/tag/60piGp3u0/" class="post-tag">
+                  # 大数据
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h2 id="cdh-安装配置文档">CDH 安装配置文档</h2>
 <blockquote>
 <p>CDH (Cloudera’s Distribution, including Apache Hadoop)，是Hadoop众多分支中的一种，由Cloudera维护，基于稳定版本的Apache Hadoop构建，并集成了很多补丁，可直接用于生产环境。Cloudera Manager则是为了便于在集群中进行Hadoop等大数据处理相关的服务安装和监控管理的组件，对集群中主机、Hadoop、Hive、Spark等服务的安装配置管理做了极大简化。</p>
 </blockquote>
@@ -956,696 +1034,123 @@ GRANT ALL ON oozie.* TO 'oozie'@'%' IDENTIFIED BY 'unidata';
 </code></pre>
 <h3 id="四-问题反馈">四、问题反馈</h3>
 <p>maguichang@unicloud.com</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[linux修改常用下载源]]></title>
-        <id>https://maguichang.github.io/post/linux-xiu-gai-chang-yong-xia-zai-yuan/</id>
-        <link href="https://maguichang.github.io/post/linux-xiu-gai-chang-yong-xia-zai-yuan/">
-        </link>
-        <updated>2020-04-22T02:11:22.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="一-pip">一、pip</h2>
-<h3 id="11-linux下pip安装">1.1 linux下pip安装</h3>
-<pre><code class="language-bash">yum -y install epel-release
-yum -y install python-pip      
-# 查看pip版本
-pip --version
-# 更新pip
-pip install --upgrade pip
 
-</code></pre>
-<h3 id="12-pip源更换">1.2 pip源更换</h3>
-<pre><code class="language-bash">mkdir /root/.pip
-cd /root/.pip
-vim pip.conf
-[global]
-index-url=http://mirrors.aliyun.com/pypi/simple/
-[install]
-trusted-host=mirrors.aliyun.com
-</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[MySQL离线安装自动化部署脚本]]></title>
-        <id>https://maguichang.github.io/post/mysql-chi-xian-an-zhuang-zi-dong-hua-bu-shu-jiao-ben/</id>
-        <link href="https://maguichang.github.io/post/mysql-chi-xian-an-zhuang-zi-dong-hua-bu-shu-jiao-ben/">
-        </link>
-        <updated>2020-04-19T06:36:01.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="1-版本-5727">1、 版本 5.7.27</h2>
-<h2 id="2-安装包">2、安装包</h2>
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
 <ul>
-<li>mysql-5.7.27-1.el7.x86_64.rpm-bundle.tar</li>
-</ul>
-<h2 id="3-部署脚本">3、 部署脚本</h2>
+<li><a href="#cdh-%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE%E6%96%87%E6%A1%A3">CDH 安装配置文档</a><br>
+*
 <ul>
-<li>在mysql安装包同级目录，新建mysql_install.sh,写入以下内容</li>
-</ul>
-<pre><code class="language-bash">#!/bin/bash
-INSTALL_PACKAGE_PATH=&quot;./mysql-5.7.27-1.el7.x86_64.rpm-bundle.tar&quot;
- 
-function init_environment(){
-    rpm -e --nodeps mariadb-libs
-    echo &quot;uninstall about mariadb&quot;
-}
- 
-function change_password(){
-    findpass=$(grep 'temporary password' /var/log/mysqld.log)
-    initpass=${findpass##* }
-    echo $initpass
-    NEWPASS=&quot;Root@123456&quot;
-    echo $NEWPASS
-    SQL=&quot;ALTER USER 'root'@'localhost' IDENTIFIED BY \&quot;${NEWPASS}\&quot;;GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY \&quot;${NEWPASS}\&quot; WITH GRANT OPTION;flush privileges;&quot;
-    echo $SQL
-    mysql --connect-expired-password --password=&quot;$initpass&quot; -e &quot;${SQL}&quot;
-    if [ $? -eq 0 ]
-    then
-        echo &quot;change password success&quot;
-    else
-        echo &quot;change password fail&quot;
-        exit
-    fi
-} 
- 
-function install(){
-    yum -y install libaio numactl libaio-devel autoconf net-tools perl
-	init_environment
-    echo &quot;Start the installation&quot;
-    tar -xvf $INSTALL_PACKAGE_PATH
-    RPM_EXE=`ls |grep mysql-community-common*`
-    rpm -ivh $RPM_EXE
-    RPM_EXE=`ls |grep mysql-community-libs-8*`
-    rpm -ivh $RPM_EXE
-    RPM_EXE=`ls |grep mysql-community-client*`
-    rpm -ivh $RPM_EXE
-    RPM_EXE=`ls |grep mysql-community-server*`
-    rpm -ivh $RPM_EXE
-    groupadd mysql
-    useradd -g mysql mysql
-    mysqld --initialize --user=mysql
-    mysqld --initialize-insecure --user=mysql
-    systemctl start mysqld
-    change_password
-}
- 
-install
-</code></pre>
+<li><a href="#readme">readme</a></li>
+<li><a href="#%E4%B8%80-%E5%9F%BA%E6%9C%AC%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE">一、基本环境配置</a>
 <ul>
-<li>运行安装脚本， sh mysql_install.sh</li>
+<li><a href="#11-%E6%9B%B4%E6%94%B9%E4%B8%BB%E6%9C%BA%E5%90%8D">1.1 更改主机名</a></li>
+<li><a href="#12-%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99-%E7%A6%81%E6%AD%A2%E5%BC%80%E6%9C%BA%E5%90%AF%E5%8A%A8-%E6%B8%85%E7%A9%BA%E8%A7%84%E5%88%99">1.2 关闭防火墙、禁止开机启动、清空规则</a></li>
+<li><a href="#13-%E5%85%B3%E9%97%ADselinux">1.3 关闭selinux</a></li>
+<li><a href="#14-%E5%AE%89%E8%A3%85ntp%E9%85%8D%E7%BD%AE%E6%97%B6%E5%8C%BA%E4%B8%8E%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5">1.4  安装ntp，配置时区与时间同步</a></li>
+<li><a href="#15-%E5%AE%89%E8%A3%85jdk">1.5 安装jdk</a></li>
+<li><a href="#16-%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2mysql">1.6 离线部署mysql</a></li>
+<li><a href="#17-%E5%88%9D%E5%A7%8B%E5%8C%96cm%E6%95%B0%E6%8D%AE%E5%BA%93">1.7 初始化CM数据库</a></li>
+<li><a href="#18-%E9%83%A8%E7%BD%B2mysql-connector-java">1.8 部署mysql-connector-java</a></li>
 </ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[centos 挂载磁盘空间]]></title>
-        <id>https://maguichang.github.io/post/centos-gua-zai-ci-pan-kong-jian/</id>
-        <link href="https://maguichang.github.io/post/centos-gua-zai-ci-pan-kong-jian/">
-        </link>
-        <updated>2020-04-18T12:20:04.000Z</updated>
-        <content type="html"><![CDATA[<p>最近安装CentOS 7服务器，为了方便快速，选择了默认分区安装，但是centos7默认分区的root大小为50G，也就是说如果硬件分配的总大小超过50G，剩余的所有空间都会分配给home。</p>
-<pre><code>这时候软件如果装在/usr/local目录下，并且data等数据文件也配置在root下，则必须在装机后调整root的大小，否则运行一段时间后很容易导致磁盘空间不足。基于这种情况，我们只需要将调整一下home分区的大小预留为20G，将其他的空间都分配给root即可。
-
-总体思路为：备份/home内容，然后将/home文件系统所在的逻辑卷删除，扩大/root文件系统，新建/home ，恢复/home内容
-</code></pre>
-<p>一、卸载home</p>
-<pre><code> 1.1 备份home分区文件 
-
-tar cvf /tmp/home.tar /home
- 1.2 安装psmisc 
-
-yum install -y psmisc
-//Psmisc软件包包含三个帮助管理/proc目录的程序，安装下列程序: fuser、 killall、pstree和pstree.x11(到pstree的链接)
-
-//fuser 显示使用指定文件或者文件系统的进程的PID。
-
-//killall 杀死某个名字的进程，它向运行指定命令的所有进程发出信号。
-
-//pstree 树型显示当前运行的进程。
-
-//pstree.x11 与pstree功能相同，只是在退出前需要确认。
-
-1.3 卸载/home文件系统 
-
-umount /home
- 如果提示无法卸载，是因为有进程占用/home，可以用下面的命令来停止占用的进程。  
-
-fuser -km /home/
- 1.4 删除/home所在的lv 
-
-lvremove /dev/mapper/centos-home
-</code></pre>
-<p>二、扩大root</p>
-<pre><code> 2.1 扩展/root所在的lv
-
- 由于之前/home占用了342G的空间，故我考虑将加到/root里320G，剩下的留给/home。 
-
-lvextend -L +320G /dev/mapper/centos-root
-如果显示：logical volume centos/root successfully resized.则表示成功。
-
-2.2 扩展/root文件系统 
-
-xfs_growfs /dev/mapper/centos-root
-这时可以使用df -h 检查一下root文件系统的空间看是不是已经改变了。
-</code></pre>
-<p>三、恢复home分区</p>
-<pre><code> 3.1 重新创建home LV
-
-这里我们先创建一个1G的home LV，然后再将所有的空闲分区追加到home LV
-
-lvcreate -L 1G -n /dev/mapper/centos-home
-lvextend -l +100%FREE /dev/mapper/centos-home
- 3.2 创建home文件系统
-
-mkfs.xfs  /dev/mapper/centos-home
- 3.3 挂载home文件系统
-
-mount /dev/mapper/centos-home
-3.4 恢复home文件系统
-
-tar xvf /tmp/home.tar -C /home/
-cd /home/home/
-mv * ../
-</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[vim编辑器常用指令]]></title>
-        <id>https://maguichang.github.io/post/vim-bian-ji-qi-chang-yong-zhi-ling/</id>
-        <link href="https://maguichang.github.io/post/vim-bian-ji-qi-chang-yong-zhi-ling/">
-        </link>
-        <updated>2020-04-17T12:30:12.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="一-一般指令模式command-mode">一、一般指令模式（command mode）：</h2>
-<h3 id="11-移动游标方法">1.1 移动游标方法</h3>
-<table>
-<thead>
-<tr>
-<th>指令</th>
-<th>代表含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[Ctrl]+[f]</td>
-<td>向下移动一页，相当于[Page Down]</td>
-</tr>
-<tr>
-<td>[Ctrl]+[b]</td>
-<td>向上移动一页，相当于[Page Up]</td>
-</tr>
-<tr>
-<td>0或者功能键[Home]</td>
-<td>移动到行最左侧</td>
-</tr>
-<tr>
-<td>$或者功能键[End]</td>
-<td>移动到行最右侧</td>
-</tr>
-<tr>
-<td><code>G</code></td>
-<td>移动到文档最后一列</td>
-</tr>
-<tr>
-<td>nG</td>
-<td>n代表数字，移动到第n行(可配合:set nu)</td>
-</tr>
-<tr>
-<td><code>gg</code></td>
-<td>移动到第一行，相当于1G</td>
-</tr>
-<tr>
-<td>n[Enter]</td>
-<td>n为数字。游标向下移动n行</td>
-</tr>
-</tbody>
-</table>
-<h3 id="12-保存离开">1.2 保存离开</h3>
-<table>
-<thead>
-<tr>
-<th>指 令</th>
-<th>代表含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>:q!</td>
-<td>强制离开，不存储档案</td>
-</tr>
-<tr>
-<td>:wq</td>
-<td>储存后离开</td>
-</tr>
-</tbody>
-</table>
-<h3 id="13-删除-复制和粘贴">1.3 删除、复制和粘贴</h3>
-<table>
-<thead>
-<tr>
-<th>指令</th>
-<th>代表含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>x,X</td>
-<td>x为向后删除一个字符（相当于[del]），X为向前删除一个字符（相当于[backspace]）</td>
-</tr>
-<tr>
-<td><code>dd</code></td>
-<td>删除游标所在的一整行（可以理解为剪切，p对dd同样有效）</td>
-</tr>
-<tr>
-<td>ndd</td>
-<td>n表示数字，删除游标所在的向下n行</td>
-</tr>
-<tr>
-<td><code>yy</code></td>
-<td>复制游标所在行</td>
-</tr>
-<tr>
-<td>nyy</td>
-<td>n表示数字，复制游标所在的向下n行</td>
-</tr>
-<tr>
-<td><code>p</code>,<code>P</code></td>
-<td>p为粘贴插入到游标下一行，原始的文档向后推，P为上一行</td>
-</tr>
-<tr>
-<td><code>u</code></td>
-<td>复原上一个动作（撤销）</td>
-</tr>
-<tr>
-<td>Ctrl+r</td>
-<td>重复上一个动作</td>
-</tr>
-<tr>
-<td><code>.</code></td>
-<td>小数点，重复上一个动作</td>
-</tr>
-</tbody>
-</table>
-<h3 id="14-搜索与替换">1.4 搜索与替换</h3>
-<table>
-<thead>
-<tr>
-<th>指令</th>
-<th>代表含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>/word</td>
-<td>从光标处开始<code>向下</code>查找名为word的字符串</td>
-</tr>
-<tr>
-<td>?word</td>
-<td>从光标处开始<code>向上</code>查找名为word的字符串</td>
-</tr>
-<tr>
-<td>n</td>
-<td>重复上一个搜索动作</td>
-</tr>
-<tr>
-<td>N</td>
-<td>与n功能相反（反向搜索）</td>
-</tr>
-<tr>
-<td>:n1,n2s/word1/word2/g</td>
-<td>n1与n2为数字。在第n1与n2列之间寻找word1这个字串，并将该字串取代为word2 ！举例来说，在100到200列之间搜寻vim并取代为VIM则 :100,200s/vim/VIM/g</td>
-</tr>
-<tr>
-<td>:1,$s/word1/word2/g</td>
-<td>从第一列到最后一列寻找word1字串，并将该字串取代为word2</td>
-</tr>
-<tr>
-<td>:1,$s/word1/word2/gc</td>
-<td>从第一列到最后一列寻找word1字串，并将该字串取代为word2 ，且在取代前显示提示字元给使用者确认(confirm)是否需要取代</td>
-</tr>
-<tr>
-<td>😒/old/new/</td>
-<td>用old替换new，替换当前行的第一个匹配</td>
-</tr>
-<tr>
-<td>😒/old/new/g</td>
-<td>用old替换new，替换当前行的所有匹配</td>
-</tr>
-<tr>
-<td>:%s/old/new/</td>
-<td>用old替换new，替换所有行的第一个匹配</td>
-</tr>
-<tr>
-<td>:%s/old/new/g</td>
-<td>用old替换new，替换整个文件的所有匹配</td>
-</tr>
-</tbody>
-</table>
-<h3 id="15-撤销与重做">1.5 撤销与重做</h3>
-<table>
-<thead>
-<tr>
-<th>指令</th>
-<th>代表含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>u</td>
-<td>撤销(undo)</td>
-</tr>
-<tr>
-<td>U</td>
-<td>撤销对整行的操作</td>
-</tr>
-</tbody>
-</table>
-<h3 id="16-区块选择操作">1.6 区块选择操作</h3>
-<table>
-<thead>
-<tr>
-<th>指令</th>
-<th>代表含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>v</td>
-<td>字元选择，会将游标经过的地方反白选择！</td>
-</tr>
-<tr>
-<td>V</td>
-<td>列选择，会将游标经过的列反白选择！</td>
-</tr>
-<tr>
-<td>Ctrl+v</td>
-<td>区块选择，可以用长方形的方式选择资料</td>
-</tr>
-<tr>
-<td>y</td>
-<td>将反白的地方复制起来</td>
-</tr>
-<tr>
-<td>d</td>
-<td>将反白的地方删除掉</td>
-</tr>
-<tr>
-<td>p</td>
-<td>将刚刚复制的区块，在游标所在处贴上！</td>
-</tr>
-</tbody>
-</table>
-<h2 id="二-一般指令模式切换到编辑模式">二、一般指令模式切换到编辑模式：</h2>
-<table>
-<thead>
-<tr>
-<th>指令</th>
-<th>代表含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>i或I</code></td>
-<td>进入插入模式(Insert mode)：i为『从目前游标所在处插入』， I为『在目前所在列的第一个非空白字元处开始插入』。</td>
-</tr>
-<tr>
-<td><code>a或A</code></td>
-<td>进入插入模式(Insert mode)：a为『从目前游标所在的下一个字元处开始插入』， A为『从游标所在列的最后一个字元处开始插入』。</td>
-</tr>
-<tr>
-<td><code>o或O</code></td>
-<td>进入插入模式(Insert mode)：这是英文字母o的大小写。o为『在目前游标所在的下一列处插入新的一列』； O为在目前游标所在处的上一列插入新的一列！</td>
-</tr>
-<tr>
-<td><code>r或R</code></td>
-<td>进入取代模式(Replace mode)：r只会取代游标所在的那一个字元一次；R会一直取代游标所在的文字，直到按下ESC为止；</td>
-</tr>
-</tbody>
-</table>
-<h3 id="vim编辑器页面设置">vim编辑器页面设置</h3>
-<table>
-<thead>
-<tr>
-<th>指令</th>
-<th>代表含义</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>:set nu</code></td>
-<td>设置vim编辑器显示行号</td>
-</tr>
-<tr>
-<td><code>:set nonu</code></td>
-<td>取消行号</td>
-</tr>
-</tbody>
-</table>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[linux基础命令]]></title>
-        <id>https://maguichang.github.io/post/linux-ji-chu-ming-ling/</id>
-        <link href="https://maguichang.github.io/post/linux-ji-chu-ming-ling/">
-        </link>
-        <updated>2020-04-17T03:24:42.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="一-常用基础操作">一、常用基础操作</h2>
-<h3 id="11-查看磁盘大小">1.1 查看磁盘大小</h3>
-<pre><code>df -h
-</code></pre>
-<h3 id="12-查看内存大小">1.2 查看内存大小</h3>
-<pre><code>free -h
-</code></pre>
-<h3 id="13-查看系统信息">1.3 查看系统信息</h3>
-<pre><code>cat /etc/redhat-release
-# 查看cpu信息
-lscpu
-
-# 查看cpu的个数
-cat /proc/cpuinfo| grep &quot;physical id&quot;| sort| uniq| wc -l
-
-# 查看每个物理CPU中core的个数（核数）
-cat /proc/cpuinfo| grep &quot;cpu cores&quot;| uniq
-
-# 查看逻辑CPU的个数
-cat /proc/cpuinfo| grep &quot;processor&quot;| wc -l
-
-# 查看CPU信息（型号）
-cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c
-</code></pre>
-<h3 id="14-查看内核版本">1.4 查看内核版本</h3>
-<pre><code>uname -a
-</code></pre>
-<h3 id="15-修改主机名">1.5 修改主机名</h3>
+</li>
+<li><a href="#%E4%BA%8C-rpm%E5%8C%85%E9%83%A8%E7%BD%B2cm">二、rpm包部署CM</a>
 <ul>
-<li>使用这个命令会立即生效且重启也生效</li>
-</ul>
-<pre><code>hostnamectl set-hostname mgc
-
-vim /etc/hosts
-127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-127.0.0.1  mgc
-::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-
-</code></pre>
-<h3 id="16-查看端口号">1.6 查看端口号</h3>
+<li><a href="#21-%E4%B8%BB%E8%8A%82%E7%82%B9">2.1 主节点</a>
 <ul>
-<li>centos7默认没有 netstat 命令，需要安装 net-tools 工具，yum install -y net-tools</li>
-<li>ss(Socket Statistics的缩写)命令可以用来获取 socket统计信息（查询端口占用），比 netstat 更快速高效</li>
+<li><a href="#211-%E8%A7%A3%E5%8E%8B%E5%AE%89%E8%A3%85%E5%8C%85">2.1.1 解压安装包</a></li>
+<li><a href="#212-%E5%AE%89%E8%A3%85cloudera-manager-daemonsserver">2.1.2 安装cloudera-manager-daemons，server</a></li>
+<li><a href="#213-%E5%88%86%E5%8F%91daemons-agent%E5%88%B0%E4%BB%8E%E8%8A%82%E7%82%B9">2.1.3 分发daemons、agent到从节点</a></li>
 </ul>
-<pre><code>netstat -tunlp|grep 端口号
-或者
-ss -anlp | grep 端口号
-</code></pre>
-<pre><code>ss命令参数
--n, –numeric 不解析服务名称
--r, –resolve 解析主机名
--a, –all 显示所有套接字（sockets）
--l, –listening 显示监听状态的套接字（sockets）
--o, –options 显示计时器信息
--m, –memory 显示套接字（socket）的内存使用情况
--p, –processes 显示使用套接字（socket）的进程
-</code></pre>
-<h3 id="17-防火墙相关">1.7 防火墙相关</h3>
-<pre><code># centos7
-firewall-cmd --state
-
-service firewalld start 开启
-service firewalld stop 关闭
-</code></pre>
+</li>
+<li><a href="#22-%E4%BB%8E%E8%8A%82%E7%82%B9">2.2 从节点</a></li>
+<li><a href="#23-%E5%90%AF%E5%8A%A8agent%E6%9C%8D%E5%8A%A1%E4%B8%BB-%E4%BB%8E%E8%8A%82%E7%82%B9">2.3 启动agent服务（主、从节点）</a></li>
+<li><a href="#24-web%E9%A1%B5%E9%9D%A2%E9%85%8D%E7%BD%AE%E4%BF%A1%E6%81%AF">2.4 web页面配置信息</a></li>
+</ul>
+</li>
+<li><a href="#%E4%B8%89-%E9%83%A8%E7%BD%B2hive%E4%B8%8Ehue">三、部署HIVE与HUE</a>
 <ul>
-<li>查看防火墙开放的端口信息</li>
+<li><a href="#31-mysql%E4%B8%AD%E9%85%8D%E7%BD%AEhive-hue%E5%85%83%E6%95%B0%E6%8D%AE">3.1 mysql中配置hive、hue元数据</a></li>
+<li><a href="#32-web%E9%A1%B5%E9%9D%A2%E5%AE%89%E8%A3%85%E6%9C%8D%E5%8A%A1">3.2 web页面安装服务</a></li>
+<li><a href="#33-%E5%85%B6%E5%AE%83%E6%9C%8D%E5%8A%A1%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%9D%E5%A7%8B%E5%8C%96">3.3 其它服务数据库初始化</a></li>
 </ul>
-<pre><code>firewall-cmd --list-ports
-</code></pre>
-<ul>
-<li>新增开放端口</li>
+</li>
+<li><a href="#%E5%9B%9B-%E9%97%AE%E9%A2%98%E5%8F%8D%E9%A6%88">四、问题反馈</a></li>
 </ul>
-<pre><code>firewall-cmd --zone=public --add-port=80/tcp --permanent
-
-–-zone 作用域
-–-add-port=80/tcp 添加端口，格式为：端口/通讯协议
-–-permanent 永久生效，没有此参数重启后失效
-</code></pre>
-<ul>
-<li>新增多个端口（区间）</li>
+</li>
 </ul>
-<pre><code>firewall-cmd --zone=public --add-port=80-85/tcp --permanent
-</code></pre>
-<ul>
-<li>重新加载防火墙规则</li>
+</li>
 </ul>
-<pre><code>firewall-cmd --reload
-</code></pre>
-<ul>
-<li>删除端口</li>
-</ul>
-<pre><code>firewall-cmd --zone=public --remove-port=80/tcp --permanent
-</code></pre>
-<h3 id="18-杀死进程与查看相关进程">1.8 杀死进程与查看相关进程</h3>
-<pre><code>netstat -antp
-kill -s 9 1827
 
-其中-s 9 制定了传递给进程的信号是９，即强制、尽快终止进程。各个终止信号及其作用见附录。
-</code></pre>
-<h3 id="19-查看路由">1.9 查看路由</h3>
-<pre><code>ip  route
-</code></pre>
-<h3 id="110罗列使用cpu资源最多的linux任务输入q退出">1.10罗列使用CPU资源最多的linux任务（输入q退出）</h3>
-<pre><code>top   
-</code></pre>
-<h2 id="二-文件和目录">二、文件和目录</h2>
-<h3 id="21-目录文件基础操作">2.1 目录文件基础操作</h3>
-<pre><code>cd 进入目录
-示例：cd /home 进入home目录    
-cd ../    返回上一级目录
-cd ../..    返回上两级目录
-cd -    返回上次所在目录
-cd ~    返回根目录
+              </div>
+            </div>
+          </article>
+        </div>
 
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://maguichang.github.io/post/linux-xiu-gai-chang-yong-xia-zai-yuan/">
+              <h3 class="post-title">
+                linux修改常用下载源
+              </h3>
+            </a>
+          </div>
+        
 
-cp
-cp file1 file1    文件复制
-cp -a
-cp -a dir1 dir2    复制一个目录
-cp -a /tmp/dir1 .     复制一个目录到当前工作目录
-（.代表当前目录）
+        
 
-ls    查看目录中的文件
-ls -a    显示隐藏文件
-ls -l    显示详细信息
-ls -lrt    按时间显示文件（l表示详细列表，r表示反向排序，t表示按时间排序）
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://maguichang.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
 
-pwd    显示工作路径
+      </div>
+    </div>
 
-mkdir dir1    创建dir1目录
-mkdir dir1 dir2    同时创建两个目录
-mkdir -p /tmp/dir1/dir2     创建一个目录树
+    <script>
+      hljs.initHighlightingOnLoad()
 
-mv dir1 dir2     移动/重命名一个目录
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
 
-rm -f file1    删除文件file1
-rm -rf dir1    删除目录dir1及其子目录
-</code></pre>
-<h3 id="22-查看文件内容">2.2 查看文件内容</h3>
-<pre><code>cat file1 从第一个字节开始正向查看文件的内容
-tac file1 从最后一行开始反向查看一个文件的内容
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
 
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
 
-head -2 file1 查看一个文件的前两行
-more file1 查看一个长文件的内容
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
 
-tail -3 file1 查看一个文件的最后三行
-tail -f file1 实时查看文件内容
-</code></pre>
-<h3 id="23-文本处理">2.3 文本处理</h3>
-<pre><code>grep str /tmp/test 在文件 '/tmp/test' 中查找 &quot;str&quot;
-grep ^str /tmp/test 在文件 '/tmp/test' 中查找以 &quot;str&quot; 开始的行
-grep [0-9] /tmp/test 查找 '/tmp/test' 文件中所有包含数字的行
-grep str -r /tmp/* 在目录 '/tmp' 及其子目录中查找 &quot;str&quot;
-diff file1 file2 找出两个文件的不同处
-sdiff file1 file2 以对比的方式显示两个文件的不同
-
-</code></pre>
-<h3 id="24-查找">2.4 查找</h3>
-<pre><code>find / -name file1 从 '/' 开始进入根文件系统查找文件和目录
-find / -user user1 查找属于用户 'user1' 的文件和目录
-find /home/user1 -name \*.bin 在目录 '/home/user1' 中查找以 '.bin'结尾的文件
-find /usr/bin -type f -atime +100 查找在过去100天内未被使用过的执行文件
-find /usr/bin -type f -mtime -10 查找在10天内被创建或者修改过的文件
-locate \*.ps 寻找以 '.ps' 结尾的文件，先运行 'updatedb' 命令
-find -name '*.[ch]' | xargs grep -E'expr'在当前目录及其子目录所有.c和.h文件中查找 'expr'
-find -type f -print0 | xargs -r0 grep -F 'expr'在当前目录及其子目录的常规文件中查找 'expr'
-find -maxdepth 1 -type f | xargs grep -F 'expr' 在当前目录中查找'expr'
-</code></pre>
-<h2 id="三-yum工具">三、yum工具</h2>
-<pre><code>yum -y install [package] 下载并安装一个rpm包
-yum localinstall [package.rpm] 安装一个rpm包，使用你自己的软件仓库解决所有依赖关系
-yum -y update 更新当前系统中安装的所有rpm包
-yum update [package] 更新一个rpm包
-yum remove [package] 删除一个rpm包
-yum list 列出当前系统中安装的所有包
-yum search [package] 在rpm仓库中搜寻软件包
-yum clean [package] 清除缓存目录（/var/cache/yum）下的软件包
-yum clean headers 删除所有头文件
-yum clean all 删除所有缓存的包和头文件
-
-</code></pre>
-<h2 id="四-系统服务">四、系统服务</h2>
-<pre><code>systemctl -at service
-ls /etc/systemd/system/*.service 服务目录
-ls /usr/lib/systemd/system/*.service
-systemctl -t service --state=active 查看活动的服务
-systemctl start name.service 启动服务（name=服务名）
-systemctl stop name.service 停止服务
-systemctl status name.service  查看服务器状态
-systemctl is-enabled name 检查服务是否enabled
-systemctl enable name.service 设置开机服务启动
-systemctl disable name.service 禁用服务
-systemctl daemon-reload  /etc/systemd/system/*.service 创建新的服务 
-</code></pre>
-<h2 id="五-用户相关">五、用户相关</h2>
-<h3 id="51-新建用户">5.1 新建用户</h3>
-<pre><code>adduser testuser //新建testuser 用户 
-passwd testuser //给testuser 用户设置密码
-</code></pre>
-<h3 id="52-建工作组">5.2 建工作组</h3>
-<p>groupadd testgroup //新建test工作组</p>
-<h3 id="53-新建用户同时增加工作组">5.3 新建用户同时增加工作组</h3>
-<pre><code>useradd -g testgroup testuser //新建testuser用户并增加到testgroup工作组
-
-//注：：-g 所属组 -d 家目录 -s 所用的SHELL
-</code></pre>
-<h3 id="54-给已有的用户增加工作组">5.4 给已有的用户增加工作组</h3>
-<p>usermod -G groupname username</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>https://maguichang.github.io/post/hello-gridea/</id>
-        <link href="https://maguichang.github.io/post/hello-gridea/">
-        </link>
-        <updated>2018-12-11T16:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-<!-- more -->
-<p><a href="https://github.com/getgridea/gridea">Github</a><br>
-<a href="https://gridea.dev/">Gridea 主页</a><br>
-<a href="http://fehey.com/">示例网站</a></p>
-<h2 id="特性">特性👇</h2>
-<p>📝  你可以使用最酷的 <strong>Markdown</strong> 语法，进行快速创作</p>
-<p>🌉  你可以给文章配上精美的封面图和在文章任意位置插入图片</p>
-<p>🏷️  你可以对文章进行标签分组</p>
-<p>📋  你可以自定义菜单，甚至可以创建外部链接菜单</p>
-<p>💻  你可以在 <strong>Windows</strong>，<strong>MacOS</strong> 或 <strong>Linux</strong> 设备上使用此客户端</p>
-<p>🌎  你可以使用 <strong>𝖦𝗂𝗍𝗁𝗎𝖻 𝖯𝖺𝗀𝖾𝗌</strong> 或 <strong>Coding Pages</strong> 向世界展示，未来将支持更多平台</p>
-<p>💬  你可以进行简单的配置，接入 <a href="https://github.com/gitalk/gitalk">Gitalk</a> 或 <a href="https://github.com/SukkaW/DisqusJS">DisqusJS</a> 评论系统</p>
-<p>🇬🇧  你可以使用<strong>中文简体</strong>或<strong>英语</strong></p>
-<p>🌁  你可以任意使用应用内默认主题或任意第三方主题，强大的主题自定义能力</p>
-<p>🖥  你可以自定义源文件夹，利用 OneDrive、百度网盘、iCloud、Dropbox 等进行多设备同步</p>
-<p>🌱 当然 <strong>Gridea</strong> 还很年轻，有很多不足，但请相信，它会不停向前 🏃</p>
-<p>未来，它一定会成为你离不开的伙伴</p>
-<p>尽情发挥你的才华吧！</p>
-<p>😘 Enjoy~</p>
-]]></content>
-    </entry>
-</feed>
+    </script>
+  </body>
+</html>
