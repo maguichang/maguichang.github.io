@@ -1,0 +1,771 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>K8S 集群上部署、管理MySql集群 | maguichang</title>
+<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1587949862904">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://maguichang.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="K8S 集群上部署、管理MySql集群 | maguichang - Atom Feed" href="https://maguichang.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="一、 MySQL高可用方案
+​	本文的MySQL高可用方案为主从复制+读写分离，即由单一的master和多个slave所构成。其中，客户端通过master对数据库进行写操作，通过slave端进行读操作。master出现问题后，可以将应用切换..." />
+    <meta name="keywords" content="容器化" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://maguichang.github.io">
+  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1587949862904" alt="">
+  </a>
+  <h1 class="site-title">
+    maguichang
+  </h1>
+  <p class="site-description">
+    操千曲而后晓声，观千剑而后识器
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              K8S 集群上部署、管理MySql集群
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-04-27
+              </span>
+              <span>
+                15 min read
+              </span>
+              
+                <a href="https://maguichang.github.io/tag/wM45Bf19c/" class="post-tag">
+                  # 容器化
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h2 id="一-mysql高可用方案">一、 MySQL高可用方案</h2>
+<p>​	本文的MySQL高可用方案为主从复制+读写分离，即由单一的master和多个slave所构成。其中，客户端通过master对数据库进行写操作，通过slave端进行读操作。master出现问题后，可以将应用切换到slave端。 此方案是MySQL官方提供的一种高可用解决方案，节点间的数据同步采用MySQL Replication技术。</p>
+<p>​	MySQL Replication从一个MySQL数据库服务器（master）的数据复制到一个或多个MySQL数据库服务器（slave）。在默认情况下，复制是异步的；slave不需要一直接收来自主机的更新。根据配置，可以复制数据库中的所有数据库、选定的数据库，或者特定的表。</p>
+<h2 id="二-部署须知">二、部署须知</h2>
+<ul>
+<li>
+<p>您需要拥有一个带有默认<a href="https://kubernetes.io/docs/concepts/storage/storage-classes/">StorageClass</a>的动态PersistentVolume配置器 ，或者您 自己<a href="https://kubernetes.io/docs/user-guide/persistent-volumes/#provisioning">静态配置PersistentVolumes</a>以满足 此处使用的<a href="https://kubernetes.io/docs/user-guide/persistent-volumes/#persistentvolumeclaims">PersistentVolumeClaims</a>。</p>
+</li>
+<li>
+<p>本教程假设您熟悉 <a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/">PersistentVolumes</a> 和<a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/">StatefulSets</a>，以及其他核心概念，如<a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/">Pod</a>， <a href="https://kubernetes.io/docs/concepts/services-networking/service/">Services</a>和 <a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/">ConfigMaps</a>。</p>
+</li>
+<li>
+<p>搭建mysql集群之前请保证您有一个可用的k8s集群。</p>
+</li>
+</ul>
+<h2 id="三-部署步骤">三、部署步骤</h2>
+<h4 id="31-设置动态persistentvolume">3.1 设置动态PersistentVolume</h4>
+<p><strong>官网教程也是省略了这一步，没有新建PersistentVolume配置器</strong></p>
+<p>(a) 新建pv1.yaml</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    app: mysq0
+  name: data-mysql-0
+spec:
+  #指定pv的容量为1Gi
+  capacity:
+    storage: 10Gi
+  #指定访问模式
+  accessModes:
+    #pv能以readwrite模式mount到单个节点
+    - ReadWriteOnce
+  hostPath:
+    path: /opt/mysql0
+    type: DirectoryOrCreate
+  #指定pv的回收策略,即pvc资源释放后的事件.recycle(不建议,使用动态供给代替)删除pvc的所有文件
+  persistentVolumeReclaimPolicy: Retain
+</code></pre>
+<p>(b) 新建pv2.yaml</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    app: mysql
+  name: data-mysql-1
+spec:
+  #指定pv的容量为1Gi
+  capacity:
+    storage: 10Gi
+  #指定访问模式
+  accessModes:
+    #pv能以readwrite模式mount到单个节点
+    - ReadWriteOnce
+  hostPath:
+    path: /opt/mysql1
+    type: DirectoryOrCreate
+  #指定pv的回收策略,即pvc资源释放后的事件.recycle(不建议,使用动态供给代替)删除pvc的所有文件
+  persistentVolumeReclaimPolicy: Retain
+</code></pre>
+<p>(c) 新建pv3.yaml</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolume
+metadata:
+  labels:
+    app: mysql
+  name: data-mysql-2
+spec:
+  #指定pv的容量为1Gi
+  capacity:
+    storage: 10Gi
+  #指定访问模式
+  accessModes:
+    #pv能以readwrite模式mount到单个节点
+    - ReadWriteOnce
+  hostPath:
+    path: /opt/mysql2
+    type: DirectoryOrCreate
+  #指定pv的回收策略,即pvc资源释放后的事件.recycle(不建议,使用动态供给代替)删除pvc的所有文件
+  persistentVolumeReclaimPolicy: Retain
+</code></pre>
+<p>分别运行以上的PersistentVolume(重要，否则mysql集群会初始化失败)</p>
+<pre><code>kubectl create -f pv1.yaml
+kubectl create -f pv2.yaml
+kubectl create -f pv3.yaml
+</code></pre>
+<h4 id="32-创建mysql-configmapyaml">3.2 创建mysql-configmap.yaml</h4>
+<pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+data:
+  master.cnf: |
+    # Apply this config only on the master.
+    [mysqld]
+    log-bin
+    log_bin_trust_function_creators=1
+    lower_case_table_names=1
+  slave.cnf: |
+    # Apply this config only on slaves.
+    [mysqld]
+    super-read-only
+    log_bin_trust_function_creators=1
+</code></pre>
+<h4 id="33-创建-mysql-servicesyaml">3.3 创建 mysql-services.yaml</h4>
+<pre><code class="language-yaml"># Headless service for stable DNS entries of StatefulSet members.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  clusterIP: None
+  selector:
+    app: mysql
+---
+# Client service for connecting to any MySQL instance for reads.
+# For writes, you must instead connect to the master: mysql-0.mysql.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-read
+  labels:
+    app: mysql
+spec:
+  ports:
+  - name: mysql
+    port: 3306
+  selector:
+    app: mysql
+</code></pre>
+<h4 id="34-创建mysql-statefulsetyaml">3.4 创建mysql-statefulset.yaml</h4>
+<p>​	鉴于mysql为有状态服务，这里采用statefulset的方式部署</p>
+<table>
+<thead>
+<tr>
+<th>类型特性</th>
+<th><strong>Deployment</strong></th>
+<th><strong>StatefulSet</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否暴露到外网</td>
+<td>可以</td>
+<td>一般不</td>
+</tr>
+<tr>
+<td>请求面向的对象</td>
+<td>serviceName</td>
+<td>指定pod的域名</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>只能通过service/serviceIp访问到k8s自动转发的pod</td>
+<td>可以访问任意一个自定义的pod</td>
+</tr>
+<tr>
+<td>易用性</td>
+<td>只需要关心Service的信息即可</td>
+<td>需要知道要访问的pod启动的名称、headlessService名称</td>
+</tr>
+<tr>
+<td>PV/PVC绑定关系的稳定性（多replicas）</td>
+<td>（pod挂掉后重启）无法保证初始的绑定关系</td>
+<td>可以保证</td>
+</tr>
+<tr>
+<td>pod名称稳定性</td>
+<td>不稳定，因为是通过template创建，每次为了避免重复都会后缀一个随机数</td>
+<td>稳定，每次都一样</td>
+</tr>
+<tr>
+<td>启动顺序（多replicas）</td>
+<td>随机启动，如果pod宕掉重启，会自动分配一个node重新启动</td>
+<td>pod按 app-0、app-1...app-（n-1），如果pod宕掉重启，还会在之前的node上重新启动</td>
+</tr>
+<tr>
+<td>停止顺序（多replicas）</td>
+<td>随机停止</td>
+<td>倒序停止</td>
+</tr>
+<tr>
+<td>集群内部服务发现</td>
+<td>只能通过service访问到随机的pod</td>
+<td>可以打通pod之间的通信（主要是被发现）</td>
+</tr>
+<tr>
+<td>性能开销</td>
+<td>无需维护pod与node、pod与PVC 等关系</td>
+<td>比deployment类型需要维护额外的关系信息</td>
+</tr>
+</tbody>
+</table>
+<p>创建mysql-statefulset.yaml</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  serviceName: mysql
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      initContainers:
+      - name: init-mysql
+        image: mysql:5.7
+        command:
+        - bash
+        - &quot;-c&quot;
+        - |
+          set -ex
+          # Generate mysql server-id from pod ordinal index.
+          [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+          ordinal=${BASH_REMATCH[1]}
+          echo [mysqld] &gt; /mnt/conf.d/server-id.cnf
+          # Add an offset to avoid reserved server-id=0 value.
+          echo server-id=$((100 + $ordinal)) &gt;&gt; /mnt/conf.d/server-id.cnf
+          # Copy appropriate conf.d files from config-map to emptyDir.
+          if [[ $ordinal -eq 0 ]]; then
+            cp /mnt/config-map/master.cnf /mnt/conf.d/
+          else
+            cp /mnt/config-map/slave.cnf /mnt/conf.d/
+          fi
+        volumeMounts:
+        - name: conf
+          mountPath: /mnt/conf.d
+        - name: config-map
+          mountPath: /mnt/config-map
+      - name: clone-mysql
+        image: ist0ne/xtrabackup
+        command:
+        - bash
+        - &quot;-c&quot;
+        - |
+          set -ex
+          # Skip the clone if data already exists.
+          [[ -d /var/lib/mysql/mysql ]] &amp;&amp; exit 0
+          # Skip the clone on master (ordinal index 0).
+          [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+          ordinal=${BASH_REMATCH[1]}
+          [[ $ordinal -eq 0 ]] &amp;&amp; exit 0
+          # Clone data from previous peer.
+          ncat --recv-only mysql-$(($ordinal-1)).mysql 3307 | xbstream -x -C /var/lib/mysql
+          # Prepare the backup.
+          xtrabackup --prepare --target-dir=/var/lib/mysql
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+          subPath: mysql
+        - name: conf
+          mountPath: /etc/mysql/conf.d
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        env:
+        - name: MYSQL_ALLOW_EMPTY_PASSWORD
+          value: &quot;1&quot;
+        ports:
+        - name: mysql
+          containerPort: 3306
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+          subPath: mysql
+        - name: conf
+          mountPath: /etc/mysql/conf.d
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+        livenessProbe:
+          exec:
+            command: [&quot;mysqladmin&quot;, &quot;ping&quot;]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            # Check we can execute queries over TCP (skip-networking is off).
+            command: [&quot;mysql&quot;, &quot;-h&quot;, &quot;127.0.0.1&quot;, &quot;-e&quot;, &quot;SELECT 1&quot;]
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          timeoutSeconds: 1
+      - name: xtrabackup
+        image: ist0ne/xtrabackup
+        ports:
+        - name: xtrabackup
+          containerPort: 3307
+        command:
+        - bash
+        - &quot;-c&quot;
+        - |
+          set -ex
+          cd /var/lib/mysql
+          # Determine binlog position of cloned data, if any.
+          if [[ -f xtrabackup_slave_info ]]; then
+            # XtraBackup already generated a partial &quot;CHANGE MASTER TO&quot; query
+            # because we're cloning from an existing slave.
+            mv xtrabackup_slave_info change_master_to.sql.in
+            # Ignore xtrabackup_binlog_info in this case (it's useless).
+            rm -f xtrabackup_binlog_info
+          elif [[ -f xtrabackup_binlog_info ]]; then
+            # We're cloning directly from master. Parse binlog position.
+            [[ `cat xtrabackup_binlog_info` =~ ^(.*?)[[:space:]]+(.*?)$ ]] || exit 1
+            rm xtrabackup_binlog_info
+            echo &quot;CHANGE MASTER TO MASTER_LOG_FILE='${BASH_REMATCH[1]}',\
+                  MASTER_LOG_POS=${BASH_REMATCH[2]}&quot; &gt; change_master_to.sql.in
+          fi
+          # Check if we need to complete a clone by starting replication.
+          if [[ -f change_master_to.sql.in ]]; then
+            echo &quot;Waiting for mysqld to be ready (accepting connections)&quot;
+            until mysql -h 127.0.0.1 -e &quot;SELECT 1&quot;; do sleep 1; done
+            echo &quot;Initializing replication from clone position&quot;
+            # In case of container restart, attempt this at-most-once.
+            mv change_master_to.sql.in change_master_to.sql.orig
+            mysql -h 127.0.0.1 &lt;&lt;EOF
+          $(&lt;change_master_to.sql.orig),
+            MASTER_HOST='mysql-0.mysql',
+            MASTER_USER='root',
+            MASTER_PASSWORD='',
+            MASTER_CONNECT_RETRY=10;
+          START SLAVE;
+          EOF
+          fi
+          # Start a server to send backups when requested by peers.
+          exec ncat --listen --keep-open --send-only --max-conns=1 3307 -c \
+            &quot;xtrabackup --backup --slave-info --stream=xbstream --host=127.0.0.1 --user=root&quot;
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+          subPath: mysql
+        - name: conf
+          mountPath: /etc/mysql/conf.d
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+      - name: mysql_exporter
+        env:
+        - name: DATA_SOURCE_NAME
+          value: root:@(127.0.0.1:3306)/
+        image: prom/mysqld-exporter
+        imagePullPolicy: Always
+        name: mysql-exporter
+        ports: 
+        - containerPort: 9104
+          protocol: TCP
+      volumes:
+      - name: conf
+        emptyDir: {}
+      - name: config-map
+        configMap:
+          name: mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [&quot;ReadWriteOnce&quot;]
+      resources:
+        requests:
+          storage: 10Gi
+</code></pre>
+<p>注意事项：</p>
+<ul>
+<li>
+<p>官方文档地址为image: gcr.io/google-samples/xtrabackup:1.0</p>
+<p>亲测，拉取image会失败，需要改成以下配置</p>
+</li>
+</ul>
+<pre><code># 该镜像地址无法获取，导致mysql在pod中初始化失败
+image: ist0ne/xtrabackup
+</code></pre>
+<pre><code>如果不确定可以，docker search  xtrabackup，查看一下可用的xtrabackup镜像
+</code></pre>
+<ul>
+<li>由于要实现mysql集群的监控，故需要增加mysqld-exporter的image实现mysql集群信息的暴露。暴露端口9104。</li>
+</ul>
+<h2 id="四-mysql集群监控">四、MySQL集群监控</h2>
+<h4 id="41简述">4.1简述</h4>
+<p>​	Prometheus（普罗米修斯）是一套开源的监控&amp;报警&amp;时间序列数据库的组合，现在最常见的Kubernetes容器管理系统中，通常会搭配Prometheus进行监控。</p>
+<p>​	Prometheus基本原理是通过HTTP协议周期性抓取被监控组件的状态，这样做的好处是任意组件只要提供HTTP接口就可以接入监控系统，不需要任何SDK或者其他的集成过程。这样做非常适合虚拟化环境比如VM或者Docker 。</p>
+<h4 id="42-prometheus-安装部署">4.2 prometheus 安装部署</h4>
+<p>​	本文采用docker安装prometheus 。</p>
+<h5 id="421-拉取镜像">4.2.1 拉取镜像</h5>
+<pre><code>docker pull prom/prometheus
+</code></pre>
+<h5 id="422-修改配置文件">4.2.2 修改配置文件</h5>
+<p>在本机上新建需要挂载的prometheus的配置文件，与数据存储文件</p>
+<pre><code class="language-yaml">vim prometheus.yml
+# 写入以下内容
+# my global config
+global:
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - &quot;first_rules.yml&quot;
+  # - &quot;second_rules.yml&quot;
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+    - targets: ['localhost:9090']
+    # k8s中mysql的集群信息
+  - job_name: 'mysql-0'
+    static_configs:
+      - targets: ['10.244.1.6:9104']
+        labels:
+          instance: db1
+  - job_name: 'mysql-1'
+    static_configs:
+      - targets: ['10.244.2.5:9104']
+        labels:
+          instance: db2
+  - job_name: 'mysql-2'
+    static_configs:
+      - targets: ['10.244.0.7:9104']
+</code></pre>
+<h5 id="423-映射配置文件启动prometheus">4.2.3 映射配置文件启动prometheus</h5>
+<pre><code class="language-bash">docker run -d --name myPrometheus -p 9090:9090 -v /opt/mgc/myPrometheus/prometheus.yml:/etc/prometheus/prometheus.yml -v /opt/mgc/myPrometheus/prometheus-data:/prometheus-data prom/prometheus
+</code></pre>
+<h5 id="424-访问prometheus">4.2.4 访问prometheus</h5>
+<figure data-type="image" tabindex="1"><img src="https://maguichang.github.io/post-images/1587949703333.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://maguichang.github.io/post-images/1587949837946.png" alt="" loading="lazy"></figure>
+<h2 id="五-mysql-数据备份与迁移">五、MySQL 数据备份与迁移</h2>
+<h4 id="51-数据备份">5.1 数据备份</h4>
+<p>​	由于在statefulset中的mysql集群配置，采用了挂载卷的形式存储数据到本地磁盘，故已实现了mysql的数据备份。详见3.3中的mysql-statefulset.yaml配置文件</p>
+<h4 id="52-数据迁移">5.2 数据迁移</h4>
+<h5 id="521-从mysql-master-写入数据">5.2.1 从mysql master 写入数据</h5>
+<pre><code class="language-bash">kubectl run mysql-client --image=mysql:5.7 -i --rm --restart=Never --\
+  mysql -h mysql-0.mysql &lt;&lt;EOF
+CREATE DATABASE test2;
+CREATE TABLE test2.messages (message VARCHAR(250));
+INSERT INTO test.messages VALUES ('hello mgc');
+EOF
+</code></pre>
+<h5 id="522-从mysql-slave读取数据">5.2.2 从mysql slave读取数据</h5>
+<pre><code class="language-bash">kubectl run mysql-client --image=mysql:5.7 -i -t --rm --restart=Never -- mysql -h mysql-read -e &quot;SELECT * FROM test.messages&quot;
+</code></pre>
+<h5 id="523-查看集群状态">5.2.3 查看集群状态</h5>
+<pre><code class="language-bash">[root@k8s-m1 mgc]# kubectl get no
+NAME     STATUS   ROLES    AGE   VERSION
+k8s-m1   Ready    &lt;none&gt;   72d   v1.13.5
+k8s-m2   Ready    &lt;none&gt;   72d   v1.13.5
+k8s-m3   Ready    &lt;none&gt;   72d   v1.13.5
+</code></pre>
+<h5 id="524-将节点k8s-m1设置为维护状态">5.2.4 将节点k8s-m1设置为维护状态</h5>
+<pre><code class="language-bash">[root@k8s-m1 mgc]# kubectl cordon k8s-m1
+node/k8s-m1 cordoned
+</code></pre>
+<h5 id="525-再次查看集群状态">5.2.5 再次查看集群状态</h5>
+<pre><code class="language-bash">[root@k8s-m1 mgc]# kubectl get no
+NAME     STATUS                     ROLES    AGE   VERSION
+k8s-m1   Ready,SchedulingDisabled   &lt;none&gt;   72d   v1.13.5
+k8s-m2   Ready                      &lt;none&gt;   72d   v1.13.5
+k8s-m3   Ready                      &lt;none&gt;   72d   v1.13.5
+
+[root@k8s-m1 mgc]# kubectl get pods -owide
+NAME      READY   STATUS    RESTARTS   AGE     IP           NODE     NOMINATED NODE   READINESS GATES
+mysql-0   3/3     Running   0          7m52s   10.244.2.6   k8s-m3   &lt;none&gt;           &lt;none&gt;
+mysql-1   3/3     Running   0          46h     10.244.2.5   k8s-m3   &lt;none&gt;           &lt;none&gt;
+mysql-2   3/3     Running   0          46h     10.244.0.7   k8s-m2   &lt;none&gt;           &lt;none&gt;
+
+</code></pre>
+<h5 id="526-迁移mysql-0">5.2.6 迁移mysql-0</h5>
+<pre><code class="language-bash">[root@k8s-m1 mgc]# kubectl delete pod/mysql-0
+pod &quot;mysql-0&quot; deleted
+</code></pre>
+<h5 id="527-验证数据">5.2.7 验证数据</h5>
+<pre><code class="language-bash">kubectl run mysql-client --image=mysql:5.7 -i --rm --restart=Never --\
+mysql -h mysql-0.mysql -e &quot;SELECT * FROM test.messages&quot;
+
+message
+hello
+</code></pre>
+<h5 id="528-恢复节点">5.2.8 恢复节点</h5>
+<pre><code class="language-bash">kubectl uncordon k8s-m1
+</code></pre>
+<h2 id="六-k8s常用命令">六、k8s常用命令</h2>
+<p>查看启动进度</p>
+<pre><code class="language-shell">kubectl get pods -l app=mysql --watch
+</code></pre>
+<p>查看pod</p>
+<p>kubectl get pods</p>
+<pre><code>删除pod
+kubectl delete pod pod名称
+可以使用describe命令查看这个失败的Pod的明细：
+$ kubectl describe pod fail-1034443984-jerry
+
+]# kubectl create -f pv3.yaml
+
+</code></pre>
+<h3 id="查看pod的详情">查看pod的详情</h3>
+<p>kubectl get pvc,pv,statefulset,pod,service,configmap |grep mysql</p>
+<h3 id="检查pvpvc">检查pv,pvc</h3>
+<pre><code class="language-bash">[root@k8s-m1 mgc]# kubectl get pvc,pv |grep mysql
+
+persistentvolumeclaim/data-mysql-0   Bound    data-mysql-0   10Gi       RWO                           23h
+persistentvolumeclaim/data-mysql-1   Bound    data-mysql-1   10Gi       RWO                           23h
+persistentvolumeclaim/data-mysql-2   Bound    data-mysql-2   10Gi       RWO                           23h
+persistentvolume/data-mysql-0   10Gi       RWO            Retain           Bound    default/data-mysql-0                           23h
+persistentvolume/data-mysql-1   10Gi       RWO            Retain           Bound    default/data-mysql-1                           23h
+persistentvolume/data-mysql-2   10Gi       RWO            Retain           Bound    default/data-mysql-2                           23h
+</code></pre>
+<h3 id="检查pod">检查pod</h3>
+<pre><code class="language-bash">[root@k8s-m1 mgc]# kubectl get po -owide
+NAME      READY   STATUS    RESTARTS   AGE   IP           NODE     NOMINATED NODE   READINESS GATES
+mysql-0   2/2     Running   0          23h   10.244.1.2   k8s-m1   &lt;none&gt;           &lt;none&gt;
+mysql-1   2/2     Running   0          23h   10.244.2.4   k8s-m3   &lt;none&gt;           &lt;none&gt;
+mysql-2   2/2     Running   0          23h   10.244.0.6   k8s-m2   &lt;none&gt;           &lt;none&gt;
+</code></pre>
+<p><a href="https://segmentfault.com/a/1190000012244714">https://segmentfault.com/a/1190000012244714</a></p>
+<p>查看pod的状态：</p>
+<p>可以使用describe命令查看这个失败的Pod的明细：<br>
+$ kubectl describe pod fail-1034443984-jerry</p>
+<p>详细信息查询</p>
+<p>kubectl get pod mysql-0 --output yaml</p>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E4%B8%80-mysql%E9%AB%98%E5%8F%AF%E7%94%A8%E6%96%B9%E6%A1%88">一、 MySQL高可用方案</a></li>
+<li><a href="#%E4%BA%8C-%E9%83%A8%E7%BD%B2%E9%A1%BB%E7%9F%A5">二、部署须知</a></li>
+<li><a href="#%E4%B8%89-%E9%83%A8%E7%BD%B2%E6%AD%A5%E9%AA%A4">三、部署步骤</a><br>
+*
+<ul>
+<li><a href="#31-%E8%AE%BE%E7%BD%AE%E5%8A%A8%E6%80%81persistentvolume">3.1 设置动态PersistentVolume</a></li>
+<li><a href="#32-%E5%88%9B%E5%BB%BAmysql-configmapyaml">3.2 创建mysql-configmap.yaml</a></li>
+<li><a href="#33-%E5%88%9B%E5%BB%BA-mysql-servicesyaml">3.3 创建 mysql-services.yaml</a></li>
+<li><a href="#34-%E5%88%9B%E5%BB%BAmysql-statefulsetyaml">3.4 创建mysql-statefulset.yaml</a></li>
+</ul>
+</li>
+<li><a href="#%E5%9B%9B-mysql%E9%9B%86%E7%BE%A4%E7%9B%91%E6%8E%A7">四、MySQL集群监控</a><br>
+*
+<ul>
+<li><a href="#41%E7%AE%80%E8%BF%B0">4.1简述</a></li>
+<li><a href="#42-prometheus-%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2">4.2 prometheus 安装部署</a>
+<ul>
+<li><a href="#421-%E6%8B%89%E5%8F%96%E9%95%9C%E5%83%8F">4.2.1 拉取镜像</a></li>
+<li><a href="#422-%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6">4.2.2 修改配置文件</a></li>
+<li><a href="#423-%E6%98%A0%E5%B0%84%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%90%AF%E5%8A%A8prometheus">4.2.3 映射配置文件启动prometheus</a></li>
+<li><a href="#424-%E8%AE%BF%E9%97%AEprometheus">4.2.4 访问prometheus</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E4%BA%94-mysql-%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB">五、MySQL 数据备份与迁移</a><br>
+*
+<ul>
+<li><a href="#51-%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD">5.1 数据备份</a></li>
+<li><a href="#52-%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB">5.2 数据迁移</a>
+<ul>
+<li><a href="#521-%E4%BB%8Emysql-master-%E5%86%99%E5%85%A5%E6%95%B0%E6%8D%AE">5.2.1 从mysql master 写入数据</a></li>
+<li><a href="#522-%E4%BB%8Emysql-slave%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE">5.2.2 从mysql slave读取数据</a></li>
+<li><a href="#523-%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E7%8A%B6%E6%80%81">5.2.3 查看集群状态</a></li>
+<li><a href="#524-%E5%B0%86%E8%8A%82%E7%82%B9k8s-m1%E8%AE%BE%E7%BD%AE%E4%B8%BA%E7%BB%B4%E6%8A%A4%E7%8A%B6%E6%80%81">5.2.4 将节点k8s-m1设置为维护状态</a></li>
+<li><a href="#525-%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E7%8A%B6%E6%80%81">5.2.5 再次查看集群状态</a></li>
+<li><a href="#526-%E8%BF%81%E7%A7%BBmysql-0">5.2.6 迁移mysql-0</a></li>
+<li><a href="#527-%E9%AA%8C%E8%AF%81%E6%95%B0%E6%8D%AE">5.2.7 验证数据</a></li>
+<li><a href="#528-%E6%81%A2%E5%A4%8D%E8%8A%82%E7%82%B9">5.2.8 恢复节点</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E5%85%AD-k8s%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4">六、k8s常用命令</a>
+<ul>
+<li><a href="#%E6%9F%A5%E7%9C%8Bpod%E7%9A%84%E8%AF%A6%E6%83%85">查看pod的详情</a></li>
+<li><a href="#%E6%A3%80%E6%9F%A5pvpvc">检查pv,pvc</a></li>
+<li><a href="#%E6%A3%80%E6%9F%A5pod">检查pod</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://maguichang.github.io/post/da-shu-ju-ji-qun-sheng-chan-huan-jing-bu-shu-cdh/">
+              <h3 class="post-title">
+                大数据集群生产环境部署CDH
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://maguichang.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
