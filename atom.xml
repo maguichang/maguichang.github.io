@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://maguichang.github.io</id>
     <title>maguichang</title>
-    <updated>2020-04-29T01:12:48.036Z</updated>
+    <updated>2020-04-29T01:15:12.710Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://maguichang.github.io"/>
     <link rel="self" href="https://maguichang.github.io/atom.xml"/>
@@ -18,8 +18,8 @@
         <updated>2020-04-29T01:10:30.000Z</updated>
         <content type="html"><![CDATA[<h2 id="1-测试一段代码">1、测试一段代码</h2>
 <pre><code class="language-python"># -*- coding:UTF-8 -*-
-__autor__ = 'zhouli'
-__date__ = '2018/11/13 18:40'
+__autor__ = 'maguichang'
+__date__ = '2020/03/28 18:40'
 
 a = 1
 b = 'abc'
@@ -84,8 +84,8 @@ print(type(object))
 <p>左边是type，中间是继承关系，最右边的是实例；</p>
 <h2 id="3-完整代码示例">3、完整代码示例</h2>
 <pre><code class="language-python"># -*- coding:UTF-8 -*-
-__autor__ = 'zhouli'
-__date__ = '2018/11/13 18:40'
+__autor__ = 'maguichang'
+__date__ = '2020/03/28 18:40'
 
 a = 1
 b = 'abc'
