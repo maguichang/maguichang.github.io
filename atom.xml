@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://maguichang.github.io</id>
     <title>maguichang</title>
-    <updated>2020-04-27T01:22:55.073Z</updated>
+    <updated>2020-04-29T01:12:48.036Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://maguichang.github.io"/>
     <link rel="self" href="https://maguichang.github.io/atom.xml"/>
@@ -10,6 +10,112 @@
     <logo>https://maguichang.github.io/images/avatar.png</logo>
     <icon>https://maguichang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, maguichang</rights>
+    <entry>
+        <title type="html"><![CDATA[python中type、class、object之间的关系]]></title>
+        <id>https://maguichang.github.io/post/python-zhong-typeclassobject-zhi-jian-de-guan-xi/</id>
+        <link href="https://maguichang.github.io/post/python-zhong-typeclassobject-zhi-jian-de-guan-xi/">
+        </link>
+        <updated>2020-04-29T01:10:30.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="1-测试一段代码">1、测试一段代码</h2>
+<pre><code class="language-python"># -*- coding:UTF-8 -*-
+__autor__ = 'zhouli'
+__date__ = '2018/11/13 18:40'
+
+a = 1
+b = 'abc'
+print(type(1))
+print(type(int))
+print(type(b))
+print(type(str))
+</code></pre>
+<p>运行结果为</p>
+<pre><code class="language-python">&lt;class 'int'&gt;
+&lt;class 'type'&gt;
+&lt;class 'str'&gt;
+&lt;class 'type'&gt;
+</code></pre>
+<p><strong>得出如下结论</strong></p>
+<p>1是int类型，而int是一个type类型，int本身也是一个对象，是由type这个类来生成的。</p>
+<p>所以关系如下：type----》》》int----》》》1</p>
+<p>推广：type----》》》class----》》》obj</p>
+<p>那如果类的实例化会是神马东西呢？</p>
+<p>看代码</p>
+<pre><code class="language-python">class Student:
+    pass
+
+
+class MyStudent(Student):
+    pass
+
+
+stu = Student()
+print(type(stu))
+print(type(Student))
+print(int.__bases__)
+print(str.__bases__)
+print(Student.__bases__)
+print(MyStudent.__bases__)
+print(type.__bases__)
+print(object.__bases__)
+print(type(object))
+</code></pre>
+<p>得到结果如下:</p>
+<pre><code class="language-python">&lt;class '__main__.Student'&gt;
+&lt;class 'type'&gt;
+(&lt;class 'object'&gt;,)
+(&lt;class 'object'&gt;,)
+(&lt;class 'object'&gt;,)
+(&lt;class '__main__.Student'&gt;,)
+(&lt;class 'object'&gt;,)
+()
+&lt;class 'type'&gt;
+</code></pre>
+<p>更加论证了这个结论：type----》》》class----》》》obj</p>
+<p>而MyStudent.__bases__得到结果是：(&lt;class '<strong>main</strong>.Student'&gt;,)</p>
+<p>英文MyStudent是继承Student这个类的</p>
+<p>所以有了这个概念 object类是最顶层的基类</p>
+<p>而 type本身也是一个类，但是提示type也是一个对象</p>
+<p>type的父类type.__bases__是object</p>
+<p>而type(object)居然是&lt;class 'type'&gt; 这个说明了什么，</p>
+<p>object是由type产生，但是type却是继承了object.</p>
+<h2 id="2-type-object和class流程图">2、type、object和class流程图</h2>
+<p>下面看一张流程图：</p>
+<figure data-type="image" tabindex="1"><img src="https://maguichang.github.io/post-images/1588122731078.png" alt="" loading="lazy"></figure>
+<p>左边是type，中间是继承关系，最右边的是实例；</p>
+<h2 id="3-完整代码示例">3、完整代码示例</h2>
+<pre><code class="language-python"># -*- coding:UTF-8 -*-
+__autor__ = 'zhouli'
+__date__ = '2018/11/13 18:40'
+
+a = 1
+b = 'abc'
+print(type(1))  # &lt;class 'int'&gt;
+print(type(int))  # &lt;class 'type'&gt;
+print(type(b))  # &lt;class 'str'&gt;
+print(type(str))  # &lt;class 'type'&gt;
+
+
+class Student:
+    pass
+
+
+class MyStudent(Student):
+    pass
+
+
+stu = Student()
+print(type(stu))  # &lt;class '__main__.Student'&gt;
+print(type(Student))  # &lt;class 'type'&gt;
+print(int.__bases__)  # (&lt;class 'object'&gt;,)
+print(str.__bases__)  # (&lt;class 'object'&gt;,)
+print(Student.__bases__)  # (&lt;class 'object'&gt;,)
+print(MyStudent.__bases__)  # (&lt;class '__main__.Student'&gt;,)
+print(type.__bases__)  # (&lt;class 'object'&gt;,)
+print(object.__bases__)  # ()
+print(type(object))  # &lt;class 'type'&gt;
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[K8S 集群上部署、管理MySql集群]]></title>
         <id>https://maguichang.github.io/post/k8s-ji-qun-shang-bu-shu-guan-li-mysql-ji-qun/</id>
