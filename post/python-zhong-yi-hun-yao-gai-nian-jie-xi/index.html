@@ -1,0 +1,275 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Python中易混淆概念解析 | maguichang</title>
+<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1588747821267">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://maguichang.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="Python中易混淆概念解析 | maguichang - Atom Feed" href="https://maguichang.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="一、python中isinstance()与type()的区别
+1、在继承上的区别
+
+
+isinstance() 会认为子类是一种父类类型，考虑继承关系。
+
+
+type() 不会认为子类是一种父类类型，不考虑继承关系。
+
+
+class A:..." />
+    <meta name="keywords" content="python" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://maguichang.github.io">
+  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1588747821267" alt="">
+  </a>
+  <h1 class="site-title">
+    maguichang
+  </h1>
+  <p class="site-description">
+    操千曲而后晓声，观千剑而后识器
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              Python中易混淆概念解析
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-05-06
+              </span>
+              <span>
+                6 min read
+              </span>
+              
+                <a href="https://maguichang.github.io/tag/-7geuFixZ/" class="post-tag">
+                  # python
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="一-python中isinstance与type的区别">一、python中isinstance()与type()的区别</h1>
+<h2 id="1-在继承上的区别">1、在继承上的区别</h2>
+<ul>
+<li>
+<p>isinstance() 会认为子类是一种父类类型，考虑继承关系。</p>
+</li>
+<li>
+<p>type() 不会认为子类是一种父类类型，不考虑继承关系。</p>
+</li>
+</ul>
+<pre><code class="language-python">class A:
+    pass
+ 
+class B(A):
+    pass
+ 
+isinstance(A(), A)    # returns True
+type(A()) == A        # returns True
+isinstance(B(), A)    # returns True
+type(B()) == A        # returns False
+</code></pre>
+<p>​	创建一个A对象，再创建一个继承A对象的B对象，使用 isinstance() 和 type() 来比较 A() 和 A 时，由于它们的类型都是一样的，所以都返回了 True。而B对象继承于A对象，在使用isinstance()函数来比较 B() 和 A 时，由于考虑了继承关系，所以返回了 True，使用 type() 函数来比较 B() 和 A 时，不会考虑 B() 继承自哪里，所以返回了 False。</p>
+<h2 id="2-在具体功能和性能上">2、在具体功能和性能上</h2>
+<ul>
+<li>
+<p>isinstance()在于可以直接返回是否为某一特定的数据类型，且其相比type()会占用更小的内存空间（因type（）实质上为类，而isinstance（）为函数）</p>
+</li>
+<li>
+<p>type()在于可以直接返回参数的数据类型</p>
+</li>
+</ul>
+<h1 id="二-python中is与的区别">二、python中is与==的区别</h1>
+<p>Python中对象包含的三个基本要素，分别是：</p>
+<ul>
+<li>id(身份标识)</li>
+<li>type(数据类型)</li>
+<li>value(值)</li>
+</ul>
+<blockquote>
+<p>is 比较的是两个对象的id值是否相等，也就是比较两个对象是否为同一个实例对象，是否指向同一个内存地址。我们在检查 a is b 的时候，其实相当于检查 id(a) == id(b)。</p>
+<p>== 比较的是两个对象的内容是否相等，默认会调用对象的 <code>__eq__</code> 方法。a == b 相当于 a. <code>__eq__</code> (b)。== 是python标准操作符中的比较操作符，用来比较判断两个对象的值是否相等。</p>
+<p><code>is</code> 用来检查身份（identity）的同一性，即两个变量是否指向同一个对象。<code>==</code> 用来检查值的相等性（equality），即两个变量的值是否相等。身份的同一性同时也意味值的相等性，既然两个都指向同一个对象，那值就肯定相等。但是反之则不是。</p>
+</blockquote>
+<pre><code class="language-python">a = &quot;hello&quot;
+b = &quot;hello&quot;
+print(id(a))   # 输出 140506224367496
+print(id(b))   # 输出 140506224367496
+print(a is b)  # 输出 True 
+print(a == b)  # 输出 True
+
+a = &quot;hello world&quot;
+b = &quot;hello world&quot;
+print(id(a))   # 输出 140506208811952
+print(id(b))   # 输出 140506208812208
+print(a is b)  # 输出 False
+print(a == b)  # 输出 True 
+
+a = [1, 2, 3]
+b = [1, 2, 3]
+print(id(a))   # 输出 140506224299464
+print(id(b))   # 输出 140506224309576
+print(a is b)  # 输出 False
+print(a == b)  # 输出 True 
+
+a = [1, 2, 3]
+b = a
+print(id(a))   # 输出 140506224305672
+print(id(b))   # 输出 140506224305672
+print(a is b)  # 输出 True 
+print(a == b)  # 输出 True 
+
+a = [1, 2, 3]
+b = a[:]
+print(b is a)  # 输出 False 
+print(a == b)  # 输出 True 
+# 在上述示例中，由于 b 指向的是 a 的副本，也就是说 a 和 b 指向两个不同的对象，所以对它们使用 is 的结果是 False。但由于值相等，使用 == 的结果就是 True
+</code></pre>
+<p>​	这里还有一个问题，为什么 a 和 b 都是 &quot;hello&quot; 的时候，a is b 返回True，而 a 和 b都是 &quot;hello world&quot; 的时候，a is b 返回False呢？</p>
+<p>​	这是因为前一种情况下Python的<strong>字符串驻留机制</strong>起了作用。出于对性能的考虑，Python内部做了很多的优化工作，对于整数对象，Python把一些频繁使用的整数对象缓存起来，保存到一个叫 small_ints 的链表中，在Python的整个生命周期内，任何需要引用这些整数对象的地方，都不再重新创建新的对象，而是直接引用缓存中的对象。Python把这些可能频繁使用的整数对象规定在范围 [-5, 256] 之间的小对象放在 small_ints 中，但凡是需要用些小整数时，就从这里面取，不再去临时创建新的对象</p>
+<p>​	总结一下，is 是检查两个对象是否指向同一块内存空间，而 == 是检查他们的值是否相等。可以看出，is 是比 == 更严格的检查，is 返回True表明这两个对象指向同一块内存，值也一定相同。</p>
+<h1 id="三-del语句与垃圾回收">三、del语句与垃圾回收</h1>
+<ul>
+<li><strong>python的垃圾回收机制是以引用计数机制为主，标记-清除和分代收集两种机制为辅的综合方案。</strong></li>
+</ul>
+<blockquote>
+<p>当创建一个字符串a='test',之后再创建一个b = 'test‘,其实变量a/b指向的是一个对象’test'，这个对象被引用的次数是2，但是当我们改变b='test1‘，这个时候b新建了一个对象'test1'并且引用计数为1，相应的a引用计数也变为了1，这就是引用计数。那么怎么通过引用计数回收垃圾对象呢？还是上面那个案例，此时再把变量a赋值a='test2'，那么又新建了一个对象'test2'并且引用计数为1，此时之前的'test'引用计数变为0，就意味没有任何变量使用了该对象，那这个对象就是垃圾对象被销毁。引用计数简单方便但是也有弊端：计数占用内存、在相互引用的对象中计数永远不会变为0，所以还引入了标记-清除和分代收集</p>
+</blockquote>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#%E4%B8%80-python%E4%B8%ADisinstance%E4%B8%8Etype%E7%9A%84%E5%8C%BA%E5%88%AB">一、python中isinstance()与type()的区别</a>
+<ul>
+<li><a href="#1-%E5%9C%A8%E7%BB%A7%E6%89%BF%E4%B8%8A%E7%9A%84%E5%8C%BA%E5%88%AB">1、在继承上的区别</a></li>
+<li><a href="#2-%E5%9C%A8%E5%85%B7%E4%BD%93%E5%8A%9F%E8%83%BD%E5%92%8C%E6%80%A7%E8%83%BD%E4%B8%8A">2、在具体功能和性能上</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BA%8C-python%E4%B8%ADis%E4%B8%8E%E7%9A%84%E5%8C%BA%E5%88%AB">二、python中is与==的区别</a></li>
+<li><a href="#%E4%B8%89-del%E8%AF%AD%E5%8F%A5%E4%B8%8E%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6">三、del语句与垃圾回收</a></li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://maguichang.github.io/post/python-zhong-typeclassobject-zhi-jian-de-guan-xi/">
+              <h3 class="post-title">
+                python中type、class、object之间的关系
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://maguichang.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
