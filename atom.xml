@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://maguichang.github.io</id>
     <title>maguichang</title>
-    <updated>2020-05-07T08:26:19.820Z</updated>
+    <updated>2020-05-07T08:38:30.608Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://maguichang.github.io"/>
     <link rel="self" href="https://maguichang.github.io/atom.xml"/>
@@ -177,6 +177,7 @@ source /etc/profile
     --version v1.14.1 \
     --pkg-url /root/kube1.14.1.tar.gz     
 </code></pre>
+<p>注：实际环境加上自定义的vip参数，--vip 10.0.73.70</p>
 <p>或者单master多node:</p>
 <pre><code class="language-sh">sealos init --master 192.168.0.2 \
     --node 192.168.0.5 \
