@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://maguichang.github.io</id>
     <title>maguichang</title>
-    <updated>2020-05-06T06:50:23.632Z</updated>
+    <updated>2020-05-07T01:04:23.172Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://maguichang.github.io"/>
     <link rel="self" href="https://maguichang.github.io/atom.xml"/>
@@ -2184,8 +2184,24 @@ cat /proc/cpuinfo| grep &quot;processor&quot;| wc -l
 # 查看CPU信息（型号）
 cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c
 </code></pre>
-<h3 id="14-查看内核版本">1.4 查看内核版本</h3>
+<h3 id="14-查看内核版本与升级内核">1.4 查看内核版本与升级内核</h3>
 <pre><code>uname -a
+</code></pre>
+<ul>
+<li>升级内核</li>
+</ul>
+<pre><code># 导入仓库源
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
+# 查看可以使用系统内核包
+yum --disablerepo=&quot;*&quot; --enablerepo=&quot;elrepo-kernel&quot; list available
+# 安装指定的内核
+yum install -y kernel-ml-5.6.10-1.el7.elrepo --enablerepo=elrepo-kernel
+
+grub2-set-default 0
+grub2-mkconfig -o /boot/grub2/grub.cfg
+grubby --default-kernel
+reboot
 </code></pre>
 <h3 id="15-修改主机名">1.5 修改主机名</h3>
 <ul>
