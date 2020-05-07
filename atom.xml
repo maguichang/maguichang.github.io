@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://maguichang.github.io</id>
     <title>maguichang</title>
-    <updated>2020-05-07T01:04:23.172Z</updated>
+    <updated>2020-05-07T08:26:19.820Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://maguichang.github.io"/>
     <link rel="self" href="https://maguichang.github.io/atom.xml"/>
@@ -10,6 +10,396 @@
     <logo>https://maguichang.github.io/images/avatar.png</logo>
     <icon>https://maguichang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, maguichang</rights>
+    <entry>
+        <title type="html"><![CDATA[k8s 集群一键HA部署]]></title>
+        <id>https://maguichang.github.io/post/k8s-ji-qun-yi-jian-ha-bu-shu/</id>
+        <link href="https://maguichang.github.io/post/k8s-ji-qun-yi-jian-ha-bu-shu/">
+        </link>
+        <updated>2020-05-07T08:25:19.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="快速开始">快速开始</h1>
+<blockquote>
+<p>环境信息</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>主机名</th>
+<th>IP地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>master0</td>
+<td>192.168.0.2</td>
+</tr>
+<tr>
+<td>master1</td>
+<td>192.168.0.3</td>
+</tr>
+<tr>
+<td>master2</td>
+<td>192.168.0.4</td>
+</tr>
+<tr>
+<td>node0</td>
+<td>192.168.0.5</td>
+</tr>
+</tbody>
+</table>
+<p>服务器密码：123456</p>
+<p>kubernetes高可用安装教程</p>
+<p>只需要准备好服务器，在任意一台服务器上执行下面命令即可</p>
+<pre><code class="language-sh"># 下载并安装sealos, sealos是个golang的二进制工具，直接下载拷贝到bin目录即可, release页面也可下载
+wget -c https://sealyun.oss-cn-beijing.aliyuncs.com/latest/sealos &amp;&amp; \
+    chmod +x sealos &amp;&amp; mv sealos /usr/bin 
+
+# 下载离线资源包
+wget -c https://sealyun.oss-cn-beijing.aliyuncs.com/d551b0b9e67e0416d0f9dce870a16665-1.18.0/kube1.18.0.tar.gz 
+
+# 安装一个三master的kubernetes集群
+sealos init --passwd 123456 \
+	--master 192.168.0.2  --master 192.168.0.3  --master 192.168.0.4  \
+	--node 192.168.0.5 \
+	--pkg-url /root/kube1.18.0.tar.gz \
+	--version v1.18.0
+</code></pre>
+<blockquote>
+<p>参数含义</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>passwd</td>
+<td>服务器密码</td>
+<td>123456</td>
+</tr>
+<tr>
+<td>master</td>
+<td>k8s master节点IP地址</td>
+<td>192.168.0.2</td>
+</tr>
+<tr>
+<td>node</td>
+<td>k8s node节点IP地址</td>
+<td>192.168.0.3</td>
+</tr>
+<tr>
+<td>pkg-url</td>
+<td>离线资源包地址，支持下载到本地，或者一个远程地址</td>
+<td>/root/kube1.18.0.tar.gz</td>
+</tr>
+<tr>
+<td>version</td>
+<td><a href="http://store.lameleg.com/">资源包</a>对应的版本</td>
+<td>v1.18.0</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>增加master</p>
+</blockquote>
+<pre><code class="language-shell">sealos join --master 192.168.0.6 --master 192.168.0.7
+sealos join --master 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<blockquote>
+<p>增加node</p>
+</blockquote>
+<pre><code class="language-shell">sealos join --node 192.168.0.6 --node 192.168.0.7
+sealos join --node 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<blockquote>
+<p>删除指定master节点</p>
+</blockquote>
+<pre><code class="language-shell">sealos clean --master 192.168.0.6 --master 192.168.0.7
+sealos clean --master 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<blockquote>
+<p>删除指定node节点</p>
+</blockquote>
+<pre><code class="language-shell">sealos clean --node 192.168.0.6 --node 192.168.0.7
+sealos clean --node 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<blockquote>
+<p>清理集群</p>
+</blockquote>
+<pre><code class="language-shell">sealos clean
+</code></pre>
+<p>TIP</p>
+<p>系统支持：centos7.2以上 ubuntu16.04以上 内核推荐4.14以上</p>
+<p>推荐配置：centos7.4</p>
+<p>注意事项</p>
+<ol>
+<li>
+<p>必须同步所有服务器时间</p>
+</li>
+<li>
+<p>所有服务器主机名不能重复</p>
+</li>
+<li>
+<p>node节点kubectl命令报错解决方案</p>
+<pre><code class="language-shell">[root@node0 kubernetes]# kubectl get nodes
+error: no configuration has been provided, try setting KUBERNETES_MASTER environment variable
+
+# 解决方案
+# 在node节点/etc/profile末尾增加
+export KUBECONFIG=/etc/kubernetes/kubelet.conf
+# 执行即可
+source /etc/profile
+</code></pre>
+</li>
+</ol>
+<h1 id="使用教程">使用教程</h1>
+<h2 id="前提条件">前提条件</h2>
+<ul>
+<li>安装并启动docker, 高版本离线包自带docker，如没安装docker会自动安装</li>
+<li>下载<a href="http://store.lameleg.com/">kubernetes 离线安装包</a>.</li>
+<li>下载<a href="https://github.com/fanux/sealos/releases">最新版本sealos</a>.</li>
+<li>务必同步服务器时间</li>
+<li>主机名不可重复</li>
+<li>master节点CPU必须2C以上</li>
+<li>请使用sealos 3.2.0以上版本</li>
+</ul>
+<h2 id="安装教程">安装教程</h2>
+<p>多master HA:</p>
+<pre><code class="language-sh">sealos init --master 192.168.0.2 \
+    --master 192.168.0.3 \
+    --master 192.168.0.4 \
+    --node 192.168.0.5 \
+    --user root \
+    --passwd your-server-password \
+    --version v1.14.1 \
+    --pkg-url /root/kube1.14.1.tar.gz     
+</code></pre>
+<p>或者单master多node:</p>
+<pre><code class="language-sh">sealos init --master 192.168.0.2 \
+    --node 192.168.0.5 \
+    --user root \
+    --passwd your-server-password \
+    --version v1.14.1 \
+    --pkg-url /root/kube1.14.1.tar.gz 
+</code></pre>
+<p>使用免密钥或者密钥对：</p>
+<pre><code class="language-sh">sealos init --master 172.16.198.83 \
+    --node 172.16.198.84 \
+    --pkg-url https://YOUR_HTTP_SERVER/kube1.15.0.tar.gz \
+    --pk /root/kubernetes.pem \
+    --version v1.15.0
+</code></pre>
+<p>自定义ssh端口号,如2022：</p>
+<pre><code class="language-sh">sealos init --master 172.16.198.83:2022 \
+    --pkg-url https://YOUR_HTTP_SERVER/kube1.15.0.tar.gz \
+    --pk /root/kubernetes.pem \
+    --version v1.15.0
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>含义</th>
+<th>示例</th>
+<th>是否必须</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>passwd</td>
+<td>服务器密码</td>
+<td>123456</td>
+<td>和私钥二选一</td>
+</tr>
+<tr>
+<td>master</td>
+<td>k8s master节点IP地址</td>
+<td>192.168.0.2</td>
+<td>必须</td>
+</tr>
+<tr>
+<td>node</td>
+<td>k8s node节点IP地址</td>
+<td>192.168.0.3</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>pkg-url</td>
+<td>离线资源包地址，支持下载到本地，或者一个远程地址</td>
+<td>/root/kube1.16.0.tar.gz</td>
+<td>必须</td>
+</tr>
+<tr>
+<td>version</td>
+<td><a href="http://store.lameleg.com/">资源包</a>对应的版本</td>
+<td>v1.16.0</td>
+<td>必须</td>
+</tr>
+<tr>
+<td>kubeadm-config</td>
+<td>自定义kubeadm配置文件</td>
+<td>kubeadm.yaml.temp</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>pk</td>
+<td>ssh私钥地址，免密钥时使用</td>
+<td>/root/.ssh/id_rsa</td>
+<td>和passwd二选一</td>
+</tr>
+<tr>
+<td>user</td>
+<td>ssh用户名</td>
+<td>root</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>interface</td>
+<td>机器网卡名，CNI网卡发现用</td>
+<td>eth.*</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>network</td>
+<td>CNI类型如calico flannel</td>
+<td>calico</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>podcidr</td>
+<td>pod网段</td>
+<td>100.64.0.0/10</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>repo</td>
+<td>镜像仓库,离线包通常不用配置,除非你把镜像导入到自己私有仓库了</td>
+<td>k8s.gcr.io</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>svccidr</td>
+<td>clusterip网段</td>
+<td>10.96.0.0/22</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>without-cni</td>
+<td>不装cni插件，为了用户自己装别的CNI</td>
+<td></td>
+<td>可选</td>
+</tr>
+</tbody>
+</table>
+<p>检查安装是否正常:</p>
+<pre><code class="language-sh">[root@iZj6cdqfqw4o4o9tc0q44rZ ~]# kubectl get node
+NAME                      STATUS   ROLES    AGE     VERSION
+izj6cdqfqw4o4o9tc0q44rz   Ready    master   2m25s   v1.14.1
+izj6cdqfqw4o4o9tc0q44sz   Ready    master   119s    v1.14.1
+izj6cdqfqw4o4o9tc0q44tz   Ready    master   63s     v1.14.1
+izj6cdqfqw4o4o9tc0q44uz   Ready    &lt;none&gt;   38s     v1.14.1
+[root@iZj6cdqfqw4o4o9tc0q44rZ ~]# kubectl get pod --all-namespaces
+NAMESPACE     NAME                                              READY   STATUS    RESTARTS   AGE
+kube-system   calico-kube-controllers-5cbcccc885-9n2p8          1/1     Running   0          3m1s
+kube-system   calico-node-656zn                                 1/1     Running   0          93s
+kube-system   calico-node-bv5hn                                 1/1     Running   0          2m54s
+kube-system   calico-node-f2vmd                                 1/1     Running   0          3m1s
+kube-system   calico-node-tbd5l                                 1/1     Running   0          118s
+kube-system   coredns-fb8b8dccf-8bnkv                           1/1     Running   0          3m1s
+kube-system   coredns-fb8b8dccf-spq7r                           1/1     Running   0          3m1s
+kube-system   etcd-izj6cdqfqw4o4o9tc0q44rz                      1/1     Running   0          2m25s
+kube-system   etcd-izj6cdqfqw4o4o9tc0q44sz                      1/1     Running   0          2m53s
+kube-system   etcd-izj6cdqfqw4o4o9tc0q44tz                      1/1     Running   0          118s
+kube-system   kube-apiserver-izj6cdqfqw4o4o9tc0q44rz            1/1     Running   0          2m15s
+kube-system   kube-apiserver-izj6cdqfqw4o4o9tc0q44sz            1/1     Running   0          2m54s
+kube-system   kube-apiserver-izj6cdqfqw4o4o9tc0q44tz            1/1     Running   1          47s
+kube-system   kube-controller-manager-izj6cdqfqw4o4o9tc0q44rz   1/1     Running   1          2m43s
+kube-system   kube-controller-manager-izj6cdqfqw4o4o9tc0q44sz   1/1     Running   0          2m54s
+kube-system   kube-controller-manager-izj6cdqfqw4o4o9tc0q44tz   1/1     Running   0          63s
+kube-system   kube-proxy-b9b9z                                  1/1     Running   0          2m54s
+kube-system   kube-proxy-nf66n                                  1/1     Running   0          3m1s
+kube-system   kube-proxy-q2bqp                                  1/1     Running   0          118s
+kube-system   kube-proxy-s5g2k                                  1/1     Running   0          93s
+kube-system   kube-scheduler-izj6cdqfqw4o4o9tc0q44rz            1/1     Running   1          2m43s
+kube-system   kube-scheduler-izj6cdqfqw4o4o9tc0q44sz            1/1     Running   0          2m54s
+kube-system   kube-scheduler-izj6cdqfqw4o4o9tc0q44tz            1/1     Running   0          61s
+kube-system   kube-sealyun-lvscare-izj6cdqfqw4o4o9tc0q44uz      1/1     Running   0          86s
+</code></pre>
+<h2 id="清理">清理</h2>
+<pre><code class="language-sh">sealos clean 
+</code></pre>
+<h2 id="视频教程"><a href="http://mp.weixin.qq.com/mp/video?__biz=Mzg2NzAzODE5Ng==&amp;mid=100000268&amp;sn=e932ef75dfc38414c21b6b365df07c8e&amp;vid=wxv_1003349861900664832&amp;idx=1&amp;vidsn=e934d4cf8bacd1f569514b69c1344cf6&amp;fromid=1&amp;scene=18&amp;xtrack=1#wechat_redirect">视频教程</a></h2>
+<h2 id="增加master">增加master</h2>
+<pre><code class="language-shell">sealos join --master 192.168.0.6 --master 192.168.0.7
+sealos join --master 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<h2 id="增加node">增加node</h2>
+<pre><code class="language-shell">sealos join --node 192.168.0.6 --node 192.168.0.7
+sealos join --node 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<h2 id="删除指定master节点">删除指定master节点</h2>
+<p>注意clean不加任何参数会清理整个集群</p>
+<pre><code class="language-shell">sealos clean --master 192.168.0.6 --master 192.168.0.7
+sealos clean --master 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<h2 id="删除指定node节点">删除指定node节点</h2>
+<pre><code class="language-shell">sealos clean --node 192.168.0.6 --node 192.168.0.7
+sealos clean --node 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<h2 id="自定义网络">自定义网络</h2>
+<ul>
+<li>podcidr 参数指定自定义pod网段 如 --podcidr 100.64.0.0/10</li>
+<li>svccidr 参数指定clusterip网段 如 --svccidr 10.96.0.0/12</li>
+<li>without-cni sealos自带calico网络，如果你想自己装CNI不用默认可加此参数， 如 sealos init --without-cni .....</li>
+</ul>
+<h2 id="使用自定义kubeadm配置文件">使用自定义kubeadm配置文件</h2>
+<p>比如我们需要在证书里加入 <code>sealyun.com</code>:</p>
+<p>先获取配置文件模板：</p>
+<pre><code class="language-sh">sealos config -t kubeadm &gt;&gt;  kubeadm-config.yaml.tmpl
+</code></pre>
+<p>修改<code>kubeadm-config.yaml.tmpl</code>,文件即可， 编辑增加 <code>sealyun.com</code>, 注意其它部分不用动，sealos会自动填充模板里面的内容:</p>
+<pre><code class="language-yaml">apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: {{.Version}}
+controlPlaneEndpoint: &quot;apiserver.cluster.local:6443&quot;
+networking:
+  podSubnet: 100.64.0.0/10
+apiServer:
+        certSANs:
+        - sealyun.com # this is what I added
+        - 127.0.0.1
+        - apiserver.cluster.local
+        {{range .Masters -}}
+        - {{.}}
+        {{end -}}
+        - {{.VIP}}
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: &quot;ipvs&quot;
+ipvs:
+        excludeCIDRs: 
+        - &quot;{{.VIP}}/32&quot;
+</code></pre>
+<p>使用 --kubeadm-config 指定配置文件模板即可:</p>
+<pre><code class="language-sh">sealos init --kubeadm-config kubeadm-config.yaml.tmpl \
+    --master 192.168.0.2 \
+    --master 192.168.0.3 \
+    --master 192.168.0.4 \
+    --node 192.168.0.5 \
+    --user root \
+    --passwd your-server-password \
+    --version v1.14.1 \
+    --pkg-url /root/kube1.14.1.tar.gz 
+</code></pre>
+<ul>
+<li>参考链接<a href="https://sealyun.com/docs/">https://sealyun.com/docs/</a></li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Python中易混淆概念解析]]></title>
         <id>https://maguichang.github.io/post/python-zhong-yi-hun-yao-gai-nian-jie-xi/</id>
@@ -2385,38 +2775,6 @@ passwd testuser //给testuser 用户设置密码
 </code></pre>
 <h3 id="54-给已有的用户增加工作组">5.4 给已有的用户增加工作组</h3>
 <p>usermod -G groupname username</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Hello Gridea]]></title>
-        <id>https://maguichang.github.io/post/hello-gridea/</id>
-        <link href="https://maguichang.github.io/post/hello-gridea/">
-        </link>
-        <updated>2018-12-11T16:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>👏  欢迎使用 <strong>Gridea</strong> ！<br>
-✍️  <strong>Gridea</strong> 一个静态博客写作客户端。你可以用它来记录你的生活、心情、知识、笔记、创意... ...</p>
-<!-- more -->
-<p><a href="https://github.com/getgridea/gridea">Github</a><br>
-<a href="https://gridea.dev/">Gridea 主页</a><br>
-<a href="http://fehey.com/">示例网站</a></p>
-<h2 id="特性">特性👇</h2>
-<p>📝  你可以使用最酷的 <strong>Markdown</strong> 语法，进行快速创作</p>
-<p>🌉  你可以给文章配上精美的封面图和在文章任意位置插入图片</p>
-<p>🏷️  你可以对文章进行标签分组</p>
-<p>📋  你可以自定义菜单，甚至可以创建外部链接菜单</p>
-<p>💻  你可以在 <strong>Windows</strong>，<strong>MacOS</strong> 或 <strong>Linux</strong> 设备上使用此客户端</p>
-<p>🌎  你可以使用 <strong>𝖦𝗂𝗍𝗁𝗎𝖻 𝖯𝖺𝗀𝖾𝗌</strong> 或 <strong>Coding Pages</strong> 向世界展示，未来将支持更多平台</p>
-<p>💬  你可以进行简单的配置，接入 <a href="https://github.com/gitalk/gitalk">Gitalk</a> 或 <a href="https://github.com/SukkaW/DisqusJS">DisqusJS</a> 评论系统</p>
-<p>🇬🇧  你可以使用<strong>中文简体</strong>或<strong>英语</strong></p>
-<p>🌁  你可以任意使用应用内默认主题或任意第三方主题，强大的主题自定义能力</p>
-<p>🖥  你可以自定义源文件夹，利用 OneDrive、百度网盘、iCloud、Dropbox 等进行多设备同步</p>
-<p>🌱 当然 <strong>Gridea</strong> 还很年轻，有很多不足，但请相信，它会不停向前 🏃</p>
-<p>未来，它一定会成为你离不开的伙伴</p>
-<p>尽情发挥你的才华吧！</p>
-<p>😘 Enjoy~</p>
 ]]></content>
     </entry>
 </feed>

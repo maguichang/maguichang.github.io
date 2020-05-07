@@ -1,0 +1,597 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>k8s 集群一键HA部署 | maguichang</title>
+<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1588839977731">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://maguichang.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="k8s 集群一键HA部署 | maguichang - Atom Feed" href="https://maguichang.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="快速开始
+
+环境信息
+
+
+
+
+主机名
+IP地址
+
+
+
+
+master0
+192.168.0.2
+
+
+master1
+192.168.0.3
+
+
+master2
+192.168.0.4
+
+
+node0
+192.168.0.5
+
+
+
+服务器密码..." />
+    <meta name="keywords" content="容器化" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://maguichang.github.io">
+  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1588839977731" alt="">
+  </a>
+  <h1 class="site-title">
+    maguichang
+  </h1>
+  <p class="site-description">
+    操千曲而后晓声，观千剑而后识器
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              k8s 集群一键HA部署
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-05-07
+              </span>
+              <span>
+                9 min read
+              </span>
+              
+                <a href="https://maguichang.github.io/tag/wM45Bf19c/" class="post-tag">
+                  # 容器化
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h1 id="快速开始">快速开始</h1>
+<blockquote>
+<p>环境信息</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>主机名</th>
+<th>IP地址</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>master0</td>
+<td>192.168.0.2</td>
+</tr>
+<tr>
+<td>master1</td>
+<td>192.168.0.3</td>
+</tr>
+<tr>
+<td>master2</td>
+<td>192.168.0.4</td>
+</tr>
+<tr>
+<td>node0</td>
+<td>192.168.0.5</td>
+</tr>
+</tbody>
+</table>
+<p>服务器密码：123456</p>
+<p>kubernetes高可用安装教程</p>
+<p>只需要准备好服务器，在任意一台服务器上执行下面命令即可</p>
+<pre><code class="language-sh"># 下载并安装sealos, sealos是个golang的二进制工具，直接下载拷贝到bin目录即可, release页面也可下载
+wget -c https://sealyun.oss-cn-beijing.aliyuncs.com/latest/sealos &amp;&amp; \
+    chmod +x sealos &amp;&amp; mv sealos /usr/bin 
+
+# 下载离线资源包
+wget -c https://sealyun.oss-cn-beijing.aliyuncs.com/d551b0b9e67e0416d0f9dce870a16665-1.18.0/kube1.18.0.tar.gz 
+
+# 安装一个三master的kubernetes集群
+sealos init --passwd 123456 \
+	--master 192.168.0.2  --master 192.168.0.3  --master 192.168.0.4  \
+	--node 192.168.0.5 \
+	--pkg-url /root/kube1.18.0.tar.gz \
+	--version v1.18.0
+</code></pre>
+<blockquote>
+<p>参数含义</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>passwd</td>
+<td>服务器密码</td>
+<td>123456</td>
+</tr>
+<tr>
+<td>master</td>
+<td>k8s master节点IP地址</td>
+<td>192.168.0.2</td>
+</tr>
+<tr>
+<td>node</td>
+<td>k8s node节点IP地址</td>
+<td>192.168.0.3</td>
+</tr>
+<tr>
+<td>pkg-url</td>
+<td>离线资源包地址，支持下载到本地，或者一个远程地址</td>
+<td>/root/kube1.18.0.tar.gz</td>
+</tr>
+<tr>
+<td>version</td>
+<td><a href="http://store.lameleg.com/">资源包</a>对应的版本</td>
+<td>v1.18.0</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>增加master</p>
+</blockquote>
+<pre><code class="language-shell">sealos join --master 192.168.0.6 --master 192.168.0.7
+sealos join --master 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<blockquote>
+<p>增加node</p>
+</blockquote>
+<pre><code class="language-shell">sealos join --node 192.168.0.6 --node 192.168.0.7
+sealos join --node 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<blockquote>
+<p>删除指定master节点</p>
+</blockquote>
+<pre><code class="language-shell">sealos clean --master 192.168.0.6 --master 192.168.0.7
+sealos clean --master 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<blockquote>
+<p>删除指定node节点</p>
+</blockquote>
+<pre><code class="language-shell">sealos clean --node 192.168.0.6 --node 192.168.0.7
+sealos clean --node 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<blockquote>
+<p>清理集群</p>
+</blockquote>
+<pre><code class="language-shell">sealos clean
+</code></pre>
+<p>TIP</p>
+<p>系统支持：centos7.2以上 ubuntu16.04以上 内核推荐4.14以上</p>
+<p>推荐配置：centos7.4</p>
+<p>注意事项</p>
+<ol>
+<li>
+<p>必须同步所有服务器时间</p>
+</li>
+<li>
+<p>所有服务器主机名不能重复</p>
+</li>
+<li>
+<p>node节点kubectl命令报错解决方案</p>
+<pre><code class="language-shell">[root@node0 kubernetes]# kubectl get nodes
+error: no configuration has been provided, try setting KUBERNETES_MASTER environment variable
+
+# 解决方案
+# 在node节点/etc/profile末尾增加
+export KUBECONFIG=/etc/kubernetes/kubelet.conf
+# 执行即可
+source /etc/profile
+</code></pre>
+</li>
+</ol>
+<h1 id="使用教程">使用教程</h1>
+<h2 id="前提条件">前提条件</h2>
+<ul>
+<li>安装并启动docker, 高版本离线包自带docker，如没安装docker会自动安装</li>
+<li>下载<a href="http://store.lameleg.com/">kubernetes 离线安装包</a>.</li>
+<li>下载<a href="https://github.com/fanux/sealos/releases">最新版本sealos</a>.</li>
+<li>务必同步服务器时间</li>
+<li>主机名不可重复</li>
+<li>master节点CPU必须2C以上</li>
+<li>请使用sealos 3.2.0以上版本</li>
+</ul>
+<h2 id="安装教程">安装教程</h2>
+<p>多master HA:</p>
+<pre><code class="language-sh">sealos init --master 192.168.0.2 \
+    --master 192.168.0.3 \
+    --master 192.168.0.4 \
+    --node 192.168.0.5 \
+    --user root \
+    --passwd your-server-password \
+    --version v1.14.1 \
+    --pkg-url /root/kube1.14.1.tar.gz     
+</code></pre>
+<p>或者单master多node:</p>
+<pre><code class="language-sh">sealos init --master 192.168.0.2 \
+    --node 192.168.0.5 \
+    --user root \
+    --passwd your-server-password \
+    --version v1.14.1 \
+    --pkg-url /root/kube1.14.1.tar.gz 
+</code></pre>
+<p>使用免密钥或者密钥对：</p>
+<pre><code class="language-sh">sealos init --master 172.16.198.83 \
+    --node 172.16.198.84 \
+    --pkg-url https://YOUR_HTTP_SERVER/kube1.15.0.tar.gz \
+    --pk /root/kubernetes.pem \
+    --version v1.15.0
+</code></pre>
+<p>自定义ssh端口号,如2022：</p>
+<pre><code class="language-sh">sealos init --master 172.16.198.83:2022 \
+    --pkg-url https://YOUR_HTTP_SERVER/kube1.15.0.tar.gz \
+    --pk /root/kubernetes.pem \
+    --version v1.15.0
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>含义</th>
+<th>示例</th>
+<th>是否必须</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>passwd</td>
+<td>服务器密码</td>
+<td>123456</td>
+<td>和私钥二选一</td>
+</tr>
+<tr>
+<td>master</td>
+<td>k8s master节点IP地址</td>
+<td>192.168.0.2</td>
+<td>必须</td>
+</tr>
+<tr>
+<td>node</td>
+<td>k8s node节点IP地址</td>
+<td>192.168.0.3</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>pkg-url</td>
+<td>离线资源包地址，支持下载到本地，或者一个远程地址</td>
+<td>/root/kube1.16.0.tar.gz</td>
+<td>必须</td>
+</tr>
+<tr>
+<td>version</td>
+<td><a href="http://store.lameleg.com/">资源包</a>对应的版本</td>
+<td>v1.16.0</td>
+<td>必须</td>
+</tr>
+<tr>
+<td>kubeadm-config</td>
+<td>自定义kubeadm配置文件</td>
+<td>kubeadm.yaml.temp</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>pk</td>
+<td>ssh私钥地址，免密钥时使用</td>
+<td>/root/.ssh/id_rsa</td>
+<td>和passwd二选一</td>
+</tr>
+<tr>
+<td>user</td>
+<td>ssh用户名</td>
+<td>root</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>interface</td>
+<td>机器网卡名，CNI网卡发现用</td>
+<td>eth.*</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>network</td>
+<td>CNI类型如calico flannel</td>
+<td>calico</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>podcidr</td>
+<td>pod网段</td>
+<td>100.64.0.0/10</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>repo</td>
+<td>镜像仓库,离线包通常不用配置,除非你把镜像导入到自己私有仓库了</td>
+<td>k8s.gcr.io</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>svccidr</td>
+<td>clusterip网段</td>
+<td>10.96.0.0/22</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>without-cni</td>
+<td>不装cni插件，为了用户自己装别的CNI</td>
+<td></td>
+<td>可选</td>
+</tr>
+</tbody>
+</table>
+<p>检查安装是否正常:</p>
+<pre><code class="language-sh">[root@iZj6cdqfqw4o4o9tc0q44rZ ~]# kubectl get node
+NAME                      STATUS   ROLES    AGE     VERSION
+izj6cdqfqw4o4o9tc0q44rz   Ready    master   2m25s   v1.14.1
+izj6cdqfqw4o4o9tc0q44sz   Ready    master   119s    v1.14.1
+izj6cdqfqw4o4o9tc0q44tz   Ready    master   63s     v1.14.1
+izj6cdqfqw4o4o9tc0q44uz   Ready    &lt;none&gt;   38s     v1.14.1
+[root@iZj6cdqfqw4o4o9tc0q44rZ ~]# kubectl get pod --all-namespaces
+NAMESPACE     NAME                                              READY   STATUS    RESTARTS   AGE
+kube-system   calico-kube-controllers-5cbcccc885-9n2p8          1/1     Running   0          3m1s
+kube-system   calico-node-656zn                                 1/1     Running   0          93s
+kube-system   calico-node-bv5hn                                 1/1     Running   0          2m54s
+kube-system   calico-node-f2vmd                                 1/1     Running   0          3m1s
+kube-system   calico-node-tbd5l                                 1/1     Running   0          118s
+kube-system   coredns-fb8b8dccf-8bnkv                           1/1     Running   0          3m1s
+kube-system   coredns-fb8b8dccf-spq7r                           1/1     Running   0          3m1s
+kube-system   etcd-izj6cdqfqw4o4o9tc0q44rz                      1/1     Running   0          2m25s
+kube-system   etcd-izj6cdqfqw4o4o9tc0q44sz                      1/1     Running   0          2m53s
+kube-system   etcd-izj6cdqfqw4o4o9tc0q44tz                      1/1     Running   0          118s
+kube-system   kube-apiserver-izj6cdqfqw4o4o9tc0q44rz            1/1     Running   0          2m15s
+kube-system   kube-apiserver-izj6cdqfqw4o4o9tc0q44sz            1/1     Running   0          2m54s
+kube-system   kube-apiserver-izj6cdqfqw4o4o9tc0q44tz            1/1     Running   1          47s
+kube-system   kube-controller-manager-izj6cdqfqw4o4o9tc0q44rz   1/1     Running   1          2m43s
+kube-system   kube-controller-manager-izj6cdqfqw4o4o9tc0q44sz   1/1     Running   0          2m54s
+kube-system   kube-controller-manager-izj6cdqfqw4o4o9tc0q44tz   1/1     Running   0          63s
+kube-system   kube-proxy-b9b9z                                  1/1     Running   0          2m54s
+kube-system   kube-proxy-nf66n                                  1/1     Running   0          3m1s
+kube-system   kube-proxy-q2bqp                                  1/1     Running   0          118s
+kube-system   kube-proxy-s5g2k                                  1/1     Running   0          93s
+kube-system   kube-scheduler-izj6cdqfqw4o4o9tc0q44rz            1/1     Running   1          2m43s
+kube-system   kube-scheduler-izj6cdqfqw4o4o9tc0q44sz            1/1     Running   0          2m54s
+kube-system   kube-scheduler-izj6cdqfqw4o4o9tc0q44tz            1/1     Running   0          61s
+kube-system   kube-sealyun-lvscare-izj6cdqfqw4o4o9tc0q44uz      1/1     Running   0          86s
+</code></pre>
+<h2 id="清理">清理</h2>
+<pre><code class="language-sh">sealos clean 
+</code></pre>
+<h2 id="视频教程"><a href="http://mp.weixin.qq.com/mp/video?__biz=Mzg2NzAzODE5Ng==&amp;mid=100000268&amp;sn=e932ef75dfc38414c21b6b365df07c8e&amp;vid=wxv_1003349861900664832&amp;idx=1&amp;vidsn=e934d4cf8bacd1f569514b69c1344cf6&amp;fromid=1&amp;scene=18&amp;xtrack=1#wechat_redirect">视频教程</a></h2>
+<h2 id="增加master">增加master</h2>
+<pre><code class="language-shell">sealos join --master 192.168.0.6 --master 192.168.0.7
+sealos join --master 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<h2 id="增加node">增加node</h2>
+<pre><code class="language-shell">sealos join --node 192.168.0.6 --node 192.168.0.7
+sealos join --node 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<h2 id="删除指定master节点">删除指定master节点</h2>
+<p>注意clean不加任何参数会清理整个集群</p>
+<pre><code class="language-shell">sealos clean --master 192.168.0.6 --master 192.168.0.7
+sealos clean --master 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<h2 id="删除指定node节点">删除指定node节点</h2>
+<pre><code class="language-shell">sealos clean --node 192.168.0.6 --node 192.168.0.7
+sealos clean --node 192.168.0.6-192.168.0.9  # 或者多个连续IP
+</code></pre>
+<h2 id="自定义网络">自定义网络</h2>
+<ul>
+<li>podcidr 参数指定自定义pod网段 如 --podcidr 100.64.0.0/10</li>
+<li>svccidr 参数指定clusterip网段 如 --svccidr 10.96.0.0/12</li>
+<li>without-cni sealos自带calico网络，如果你想自己装CNI不用默认可加此参数， 如 sealos init --without-cni .....</li>
+</ul>
+<h2 id="使用自定义kubeadm配置文件">使用自定义kubeadm配置文件</h2>
+<p>比如我们需要在证书里加入 <code>sealyun.com</code>:</p>
+<p>先获取配置文件模板：</p>
+<pre><code class="language-sh">sealos config -t kubeadm &gt;&gt;  kubeadm-config.yaml.tmpl
+</code></pre>
+<p>修改<code>kubeadm-config.yaml.tmpl</code>,文件即可， 编辑增加 <code>sealyun.com</code>, 注意其它部分不用动，sealos会自动填充模板里面的内容:</p>
+<pre><code class="language-yaml">apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+kubernetesVersion: {{.Version}}
+controlPlaneEndpoint: &quot;apiserver.cluster.local:6443&quot;
+networking:
+  podSubnet: 100.64.0.0/10
+apiServer:
+        certSANs:
+        - sealyun.com # this is what I added
+        - 127.0.0.1
+        - apiserver.cluster.local
+        {{range .Masters -}}
+        - {{.}}
+        {{end -}}
+        - {{.VIP}}
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+mode: &quot;ipvs&quot;
+ipvs:
+        excludeCIDRs: 
+        - &quot;{{.VIP}}/32&quot;
+</code></pre>
+<p>使用 --kubeadm-config 指定配置文件模板即可:</p>
+<pre><code class="language-sh">sealos init --kubeadm-config kubeadm-config.yaml.tmpl \
+    --master 192.168.0.2 \
+    --master 192.168.0.3 \
+    --master 192.168.0.4 \
+    --node 192.168.0.5 \
+    --user root \
+    --passwd your-server-password \
+    --version v1.14.1 \
+    --pkg-url /root/kube1.14.1.tar.gz 
+</code></pre>
+<ul>
+<li>参考链接<a href="https://sealyun.com/docs/">https://sealyun.com/docs/</a></li>
+</ul>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li><a href="#%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B">快速开始</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B">使用教程</a>
+<ul>
+<li><a href="#%E5%89%8D%E6%8F%90%E6%9D%A1%E4%BB%B6">前提条件</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B">安装教程</a></li>
+<li><a href="#%E6%B8%85%E7%90%86">清理</a></li>
+<li><a href="#%E8%A7%86%E9%A2%91%E6%95%99%E7%A8%8B">视频教程</a></li>
+<li><a href="#%E5%A2%9E%E5%8A%A0master">增加master</a></li>
+<li><a href="#%E5%A2%9E%E5%8A%A0node">增加node</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4%E6%8C%87%E5%AE%9Amaster%E8%8A%82%E7%82%B9">删除指定master节点</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4%E6%8C%87%E5%AE%9Anode%E8%8A%82%E7%82%B9">删除指定node节点</a></li>
+<li><a href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BD%91%E7%BB%9C">自定义网络</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89kubeadm%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6">使用自定义kubeadm配置文件</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://maguichang.github.io/post/python-zhong-yi-hun-yao-gai-nian-jie-xi/">
+              <h3 class="post-title">
+                Python中易混淆概念解析
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://maguichang.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>
