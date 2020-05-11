@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://maguichang.github.io</id>
     <title>maguichang</title>
-    <updated>2020-05-11T03:29:30.946Z</updated>
+    <updated>2020-05-11T07:04:30.093Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://maguichang.github.io"/>
     <link rel="self" href="https://maguichang.github.io/atom.xml"/>
@@ -311,6 +311,10 @@ deployment.apps/nginx created
 NAME                     READY   STATUS              RESTARTS   AGE
 nginx-7db75b8b78-6km6h   0/1     ContainerCreating   0          29s
 nginx-7db75b8b78-x92lt   0/1     ContainerCreating   0          29s
+</code></pre>
+<h2 id="五-问题">五、问题</h2>
+<p>对于无法通过节点ip或服务ip访问的问题，解决如下</p>
+<pre><code>sed -ri 's#&quot;ipvs&quot;#&quot;iptables&quot;#' /etc/kubernetes/kube-proxy.conf &amp;&amp; systemctl daemon-reload  &amp;&amp; systemctl restart kube-proxy
 </code></pre>
 ]]></content>
     </entry>
