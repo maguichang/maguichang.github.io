@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>k8s 集群部署ansible方式 | maguichang</title>
-<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1589180666711">
+<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1589186733050">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://maguichang.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="k8s 集群部署ansible方式 | maguichang - Atom Feed" href="https://maguichang.github.io/atom.xml">
@@ -48,7 +48,7 @@ master
       <div class="main-content">
         <div class="site-header">
   <a href="https://maguichang.github.io">
-  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1589180666711" alt="">
+  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1589186733050" alt="">
   </a>
   <h1 class="site-title">
     maguichang
@@ -154,7 +154,7 @@ master
 </tr>
 <tr>
 <td>10.0.43.74</td>
-<td>k8s-m4</td>
+<td>k8s-n1</td>
 <td>worker</td>
 <td>2</td>
 <td>16G</td>
@@ -178,27 +178,32 @@ master
 10.0.43.72  k8s-m2
 10.0.43.73  k8s-m3
 10.0.43.74  k8s-m4
-# 配置ssh免密登录
-[root@k8s-m1 ~]# ssh-keygen -t rsa(3台)
-
-[root@k8s-m1 ~]# cat id_rsa.pub &gt;&gt; authorized_keys（主）
-[root@k8s-m2 ~]# ssh-copy-id -i k8s-m1（从）
-[root@k8s-m3 ~]# ssh-copy-id -i k8s-m1（从）
-[root@k8s-m4 ~]# ssh-copy-id -i k8s-m1（从）
-
-[root@k8s-m1 ~]# chmod 600 authorized_keys（主）
-[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m2:/root/.ssh/（主）
-[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m3:/root/.ssh/（主）
-[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m4:/root/.ssh/（主）
+# 配置ssh免密登录(3台)
+[root@k8s-m1 ~]# ssh-keygen -t rsa
+# 主节点
+[root@k8s-m1 ~]# cd .ssh
+[root@k8s-m1 .ssh]# ls
+id_rsa  id_rsa.pub
+[root@k8s-m1 .ssh]# cat id_rsa.pub &gt;&gt; authorized_keys
+# 从节点
+[root@k8s-m2 ~]# ssh-copy-id -i k8s-m1
+[root@k8s-m3 ~]# ssh-copy-id -i k8s-m1
+[root@k8s-n1 ~]# ssh-copy-id -i k8s-m1
+# 主节点
+[root@k8s-m1 ~]# chmod 600 .ssh/authorized_keys
+[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m2:/root/.ssh/
+[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m3:/root/.ssh/
+[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-n1:/root/.ssh/
 测试免密登录
 
 </code></pre>
-<h3 id="22-下载脚本">2.2 下载脚本</h3>
+<h3 id="22-下载脚本主节点中某一台">2.2 下载脚本（主节点中某一台）</h3>
 <pre><code class="language-shell">yum install -y git &amp;&amp; \
 git clone --recurse-submodules https://github.com/zhangguanzhang/Kubernetes-ansible.git -b v1.13
 </code></pre>
 <p>进入脚本目录</p>
-<pre><code class="language-shell">cd Kubernetes-ansible
+<pre><code class="language-shell">[root@k8s-m1 ~]# cd Kubernetes-ansible
+[root@k8s-m1 Kubernetes-ansible]# vi inventory/hosts 
 </code></pre>
 <p>为脚本运行改配置</p>
 <h4 id="修改inventoryhosts">修改<code>inventory/hosts</code></h4>
@@ -212,6 +217,10 @@ git clone --recurse-submodules https://github.com/zhangguanzhang/Kubernetes-ansi
 10.0.43.71 hostname=k8s-m1 nodename=10.0.43.71 clusterName=etcd-001
 10.0.43.72 hostname=k8s-m2 nodename=10.0.43.72 clusterName=etcd-002
 10.0.43.73 hostname=k8s-m3 nodename=10.0.43.73 clusterName=etcd-003
+
+[node]
+10.0.43.74 hostname=k8s-n1 nodename=10.0.43.74
+#172.16.1.7 hostname=k8s-n2 nodename=172.16.1.7
 </code></pre>
 <p>如果每台机器密码不一样参照<code>inventory/hosts</code>最下面那样写</p>
 <h4 id="修改group_varsallyml">修改<code>group_vars/all.yml</code></h4>
@@ -222,7 +231,7 @@ git clone --recurse-submodules https://github.com/zhangguanzhang/Kubernetes-ansi
 <p><code>ansible_ssh_pass</code>为ansible基于ssh的密码</p>
 </li>
 <li>
-<p><code>VIP</code>为HA的vip，这里我看到很多人VIP瞎写缺少基本的网络知识，我部署的环境网络掩码是24位，网关是<code>172.16.1.254</code>,也就是说VIP只可能在172.16.1.x里取。不会算的在网上找个在线cidr计算下，这里不要乱写ip。这里我环境的VIP是172.16.1.240，可以在一个机器上使用<code>ip addr add $VIP/$MASK dev $interface</code>手动添加vip后另一个机器ping下看看能不能通，能就代表能使用，测试完后把add改为del删除vip。</p>
+<p><code>VIP</code>为HA的vip</p>
 </li>
 <li>
 <p><code>certSANs</code>是证书里的域名和预留ip，默认的不要动，只能新加</p>
@@ -247,11 +256,11 @@ git clone --recurse-submodules https://github.com/zhangguanzhang/Kubernetes-ansi
 <figure data-type="image" tabindex="1"><img src="https://maguichang.github.io/post-images/1589167334737.png" alt="" loading="lazy"></figure>
 </li>
 </ul>
-<pre><code>nodePortAddresses:
+<pre><code class="language-shell">nodePortAddresses:
   - 172.16.1.0/24 #根据实际cidr写
 </code></pre>
 <h4 id="安装ansible">安装ansible</h4>
-<pre><code>bash scripts/Install-ansible.sh
+<pre><code class="language-shell">[root@k8s-m1 Kubernetes-ansible]# bash scripts/Install-ansible.sh
 </code></pre>
 <p>离线安装ansible的话可以在页面找最新版本 <a href="https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/%EF%BC%8C">https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/，</a> 把rpm包先下载下来用yum解决依赖</p>
 <pre><code>yum install wget -y 1 &gt; /dev/null
@@ -293,17 +302,24 @@ yum localinstall ansible-2.8.5-1.el7.ans.noarch.rpm -y
 <h3 id="31-谨慎用法">3.1 谨慎用法</h3>
 <p>在<code>Kubernetes-ansible</code>目录里</p>
 <h4 id="01-setupyml">01-setup.yml</h4>
-<p>运行<code>ansible-playbook 01-setup.yml</code></p>
+<pre><code class="language-shell"># 运行
+[root@k8s-m1 Kubernetes-ansible]# ansible-playbook 01-setup.yml
+</code></pre>
 <p>该步骤会设置基础设置+安装时间同步并重启生效，有些系统自带<code>dnsmasq</code>，这里出现<code>Could not find rhe request service dnsmasq</code>忽略。喜欢测试最新内核的人可以带上<code>-e 'kernel=true'</code>会升级到最新的内核。</p>
 <p>执行完后再连上去在剧本目录运行<code>ansible all -m shell -a date</code>看看连通性和时间是否一致，时间不一致则检查chrony服务</p>
 <h4 id="02-dockeryml">02-docker.yml</h4>
-<p>运行<code>ansible-playbook 02-docker.yml</code></p>
+<pre><code class="language-shell"># 运行
+[root@k8s-m1 Kubernetes-ansible]# ansible-playbook 02-docker.yml
+</code></pre>
 <p>根据<code>group_vars/all.yml</code>里<code>docker.version</code>从aliyun使用yum模块安装docker-ce，如果出现错误可以再来一次，单独为某个节点安装可以运行<code>ansible-playbook 02-docker.yml -e 'run=172.16.1.10'</code>，这个也可以为非k8s以外的机器安装docker。如果机器的docker服务在运行会不安装docker，仅仅配置配置+重启，想强制升级带上'-e force=true'</p>
 <p>1.14-1.15,&lt;1.16.3的版本使用19.03.3以下docker且cg驱动为systemd因为runc报错耗cpu和内存,该<a href="https://github.com/kubernetes/kubernetes/issues/76531#issuecomment-543632711">bug</a>在19.03.3+修复,如果是低版本的docker，可以升级docker后再升级下<code>containerd.io</code>版本</p>
-<pre><code>$ rpm -qa | grep containerd.io
+<pre><code class="language-shell"># 不需运行
+$ rpm -qa | grep containerd.io
 containerd.io-1.2.10-3.2.el7.x86_64
 </code></pre>
 <h4 id="03-get-binariessh">03-get-binaries.sh</h4>
+<pre><code class="language-shell">[root@k8s-m1 Kubernetes-ansible]# bash 03-get-binaries.sh all
+</code></pre>
 <ul>
 <li>这步不是剧本,手动运行<code>bash 03-get-binaries.sh all</code>: 通过docker下载k8s和etcd的二进制文件还有cni插件,觉得不信任可以自己其他方式下载。</li>
 <li>cni压缩包放剧本目录，二进制文件放/usr/local/bin/</li>
@@ -320,13 +336,13 @@ containerd.io-1.2.10-3.2.el7.x86_64
 <p>keepalived+haproxy, haproxy七层去check apiserver, 四层代理+VIP来高可用 <a href="https://zhangguanzhang.github.io/2019/03/11/k8s-ha/">https://zhangguanzhang.github.io/2019/03/11/k8s-ha/</a></p>
 <h4 id="07-masteryml">07-master.yml</h4>
 <p>运行<code>ansible-playbook 07-master.yml</code></p>
-<pre><code>$ kubectl get cs
-NAME                 STATUS    MESSAGE              ERROR
-controller-manager   Healthy   ok
-scheduler            Healthy   ok
-etcd-2               Healthy   {&quot;health&quot;: &quot;true&quot;}
-etcd-1               Healthy   {&quot;health&quot;: &quot;true&quot;}
-etcd-0               Healthy   {&quot;health&quot;: &quot;true&quot;}
+<pre><code class="language-shell">[root@k8s-m1 Kubernetes-ansible]# kubectl get cs
+NAME                 STATUS    MESSAGE             ERROR
+scheduler            Healthy   ok                  
+controller-manager   Healthy   ok                  
+etcd-1               Healthy   {&quot;health&quot;:&quot;true&quot;}   
+etcd-2               Healthy   {&quot;health&quot;:&quot;true&quot;}   
+etcd-0               Healthy   {&quot;health&quot;:&quot;true&quot;}   
 </code></pre>
 <h4 id="08-bootstrapyml">08-bootstrap.yml</h4>
 <p>运行<code>ansible-playbook 08-bootstrap.yml</code></p>
@@ -351,13 +367,14 @@ node/10.0.43.71 labeled
 node/10.0.43.72 labeled
 [root@k8s-m1 Kubernetes-ansible]# kubectl label node 10.0.43.73 node-role.kubernetes.io/master=master
 node/10.0.43.73 labeled
-
-[root@k8s-m1 Kubernetes-ansible]# kubectl get node
-NAME         STATUS   ROLES           AGE   VERSION
-10.0.43.71   Ready    master,worker   42m   v1.13.12
-10.0.43.72   Ready    master,worker   42m   v1.13.12
-10.0.43.73   Ready    master,worker   42m   v1.13.12
-10.0.43.74   Ready    worker          42m   v1.13.12
+[root@k8s-m1 Kubernetes-ansible]# kubectl label node 10.0.43.74 node-role.kubernetes.io/worker=worker
+node/10.0.43.74 labeled
+[root@k8s-m1 Kubernetes-ansible]# kubectl get nodes
+NAME         STATUS   ROLES         AGE     VERSION
+10.0.43.71   Ready    master        2m38s   v1.13.12
+10.0.43.72   Ready    master        2m39s   v1.13.12
+10.0.43.73   Ready    master        2m39s   v1.13.12
+10.0.43.74   Ready    node,worker   2m39s   v1.13.12
 </code></pre>
 <h3 id="34-添加node">3.4 添加node</h3>
 <ol>
@@ -416,8 +433,36 @@ nginx-7db75b8b78-6km6h   0/1     ContainerCreating   0          29s
 nginx-7db75b8b78-x92lt   0/1     ContainerCreating   0          29s
 </code></pre>
 <h2 id="五-问题">五、问题</h2>
-<p>对于无法通过节点ip或服务ip访问的问题，解决如下</p>
-<pre><code>sed -ri 's#&quot;ipvs&quot;#&quot;iptables&quot;#' /etc/kubernetes/kube-proxy.conf &amp;&amp; systemctl daemon-reload  &amp;&amp; systemctl restart kube-proxy
+<p>对于无法通过节点ip、服务ip、虚拟VIP访问的问题，解决如下</p>
+<pre><code class="language-shell"># 所有节点执行
+sed -ri 's#&quot;ipvs&quot;#&quot;iptables&quot;#' /etc/kubernetes/kube-proxy.conf
+</code></pre>
+<pre><code class="language-shell"># 所有节点，修改配置文件
+[root@k8s-m1 nginx]# vi /lib/systemd/system/kube-proxy.service
+[Unit]
+Description=Kubernetes Kube Proxy
+Documentation=https://github.com/kubernetes/kubernetes
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/kube-proxy \
+  --hostname-override=10.0.43.71 \
+  --logtostderr=false \
+  --log-dir=/var/log/kubernetes/kube-proxy \
+  # 增加ipvx配置
+  --proxy-mode=ipvs \
+  # 指定配置文件
+  --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
+  --v=2
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+<pre><code class="language-shell"># 重启
+systemctl daemon-reload  &amp;&amp; systemctl restart kube-proxy
 </code></pre>
 
               </div>
@@ -429,7 +474,7 @@ nginx-7db75b8b78-x92lt   0/1     ContainerCreating   0          29s
 <li><a href="#%E4%BA%8C-%E5%AE%89%E8%A3%85%E5%87%86%E5%A4%87">二、安装准备</a>
 <ul>
 <li><a href="#21-%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C">2.1 准备工作</a></li>
-<li><a href="#22-%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%AC">2.2 下载脚本</a>
+<li><a href="#22-%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%AC%E4%B8%BB%E8%8A%82%E7%82%B9%E4%B8%AD%E6%9F%90%E4%B8%80%E5%8F%B0">2.2 下载脚本（主节点中某一台）</a>
 <ul>
 <li><a href="#%E4%BF%AE%E6%94%B9inventoryhosts">修改<code>inventory/hosts</code></a></li>
 <li><a href="#%E4%BF%AE%E6%94%B9group_varsallyml">修改<code>group_vars/all.yml</code></a></li>
