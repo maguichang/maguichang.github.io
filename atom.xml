@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://maguichang.github.io</id>
     <title>maguichang</title>
-    <updated>2020-05-11T03:27:46.351Z</updated>
+    <updated>2020-05-11T03:29:30.946Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://maguichang.github.io"/>
     <link rel="self" href="https://maguichang.github.io/atom.xml"/>
@@ -300,6 +300,17 @@ spec:
     nodePort: 31111
   selector:
     app: nginx
+</code></pre>
+<pre><code class="language-shell">[root@k8s-m1 k8s-nginx]# ls
+nginx-deploy.yaml  nginx-svc.yaml
+[root@k8s-m1 k8s-nginx]# kubectl apply -f nginx-svc.yaml 
+service/nginx created
+[root@k8s-m1 k8s-nginx]# kubectl apply -f nginx-deploy.yaml
+deployment.apps/nginx created
+[root@k8s-m1 k8s-nginx]# kubectl get pods
+NAME                     READY   STATUS              RESTARTS   AGE
+nginx-7db75b8b78-6km6h   0/1     ContainerCreating   0          29s
+nginx-7db75b8b78-x92lt   0/1     ContainerCreating   0          29s
 </code></pre>
 ]]></content>
     </entry>

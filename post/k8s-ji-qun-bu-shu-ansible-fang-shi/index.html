@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>k8s 集群部署ansible方式 | maguichang</title>
-<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1589167664005">
+<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1589167768222">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://maguichang.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="k8s 集群部署ansible方式 | maguichang - Atom Feed" href="https://maguichang.github.io/atom.xml">
@@ -48,7 +48,7 @@ master
       <div class="main-content">
         <div class="site-header">
   <a href="https://maguichang.github.io">
-  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1589167664005" alt="">
+  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1589167768222" alt="">
   </a>
   <h1 class="site-title">
     maguichang
@@ -403,6 +403,17 @@ spec:
     nodePort: 31111
   selector:
     app: nginx
+</code></pre>
+<pre><code class="language-shell">[root@k8s-m1 k8s-nginx]# ls
+nginx-deploy.yaml  nginx-svc.yaml
+[root@k8s-m1 k8s-nginx]# kubectl apply -f nginx-svc.yaml 
+service/nginx created
+[root@k8s-m1 k8s-nginx]# kubectl apply -f nginx-deploy.yaml
+deployment.apps/nginx created
+[root@k8s-m1 k8s-nginx]# kubectl get pods
+NAME                     READY   STATUS              RESTARTS   AGE
+nginx-7db75b8b78-6km6h   0/1     ContainerCreating   0          29s
+nginx-7db75b8b78-x92lt   0/1     ContainerCreating   0          29s
 </code></pre>
 
               </div>
