@@ -1,0 +1,522 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>k8s 集群部署ansible方式 | maguichang</title>
+<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1589167664005">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="https://maguichang.github.io/styles/main.css">
+<link rel="alternate" type="application/atom+xml" title="k8s 集群部署ansible方式 | maguichang - Atom Feed" href="https://maguichang.github.io/atom.xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700">
+
+
+
+    <meta name="description" content="一、集群配置与分布
+
+
+
+IP
+Hostname
+Role
+CPU
+Memory
+
+
+
+
+10.0.43.71
+k8s-m1
+master
+2
+16G
+
+
+10.0.43.72
+k8s-m2
+master
+2
+16G
+
+
+10.0.43.7..." />
+    <meta name="keywords" content="容器化" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://maguichang.github.io">
+  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1589167664005" alt="">
+  </a>
+  <h1 class="site-title">
+    maguichang
+  </h1>
+  <p class="site-description">
+    操千曲而后晓声，观千剑而后识器
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              k8s 集群部署ansible方式
+            </h2>
+            <div class="post-info">
+              <span>
+                2020-05-11
+              </span>
+              <span>
+                11 min read
+              </span>
+              
+                <a href="https://maguichang.github.io/tag/wM45Bf19c/" class="post-tag">
+                  # 容器化
+                </a>
+              
+            </div>
+            
+            <div class="post-content-wrapper">
+              <div class="post-content">
+                <h2 id="一-集群配置与分布">一、集群配置与分布</h2>
+<table>
+<thead>
+<tr>
+<th>IP</th>
+<th>Hostname</th>
+<th>Role</th>
+<th>CPU</th>
+<th>Memory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10.0.43.71</td>
+<td>k8s-m1</td>
+<td>master</td>
+<td>2</td>
+<td>16G</td>
+</tr>
+<tr>
+<td>10.0.43.72</td>
+<td>k8s-m2</td>
+<td>master</td>
+<td>2</td>
+<td>16G</td>
+</tr>
+<tr>
+<td>10.0.43.73</td>
+<td>k8s-m3</td>
+<td>master</td>
+<td>2</td>
+<td>16G</td>
+</tr>
+<tr>
+<td>10.0.43.74</td>
+<td>k8s-m4</td>
+<td>worker</td>
+<td>2</td>
+<td>16G</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二-安装准备">二、安装准备</h2>
+<h3 id="21-准备工作">2.1 准备工作</h3>
+<ul>
+<li>升级centos7内核</li>
+<li>配置集群免密登录</li>
+</ul>
+<pre><code class="language-shell"># 更改主机名(集群所有机器)
+[root@k8s-m1 ~]# hostnamectl set-hostname k8s-m1
+[root@k8s-m1 ~]# vi /etc/hosts
+[root@k8s-m1 Kubernetes-ansible]# vi /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.0.1   k8s-m1
+10.0.43.71  k8s-m1
+10.0.43.72  k8s-m2
+10.0.43.73  k8s-m3
+10.0.43.74  k8s-m4
+# 配置ssh免密登录
+[root@k8s-m1 ~]# ssh-keygen -t rsa(3台)
+
+[root@k8s-m1 ~]# cat id_rsa.pub &gt;&gt; authorized_keys（主）
+[root@k8s-m2 ~]# ssh-copy-id -i k8s-m1（从）
+[root@k8s-m3 ~]# ssh-copy-id -i k8s-m1（从）
+[root@k8s-m4 ~]# ssh-copy-id -i k8s-m1（从）
+
+[root@k8s-m1 ~]# chmod 600 authorized_keys（主）
+[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m2:/root/.ssh/（主）
+[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m3:/root/.ssh/（主）
+[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m4:/root/.ssh/（主）
+测试免密登录
+
+</code></pre>
+<h3 id="22-下载脚本">2.2 下载脚本</h3>
+<pre><code class="language-shell">yum install -y git &amp;&amp; \
+git clone --recurse-submodules https://github.com/zhangguanzhang/Kubernetes-ansible.git -b v1.13
+</code></pre>
+<p>进入脚本目录</p>
+<pre><code class="language-shell">cd Kubernetes-ansible
+</code></pre>
+<p>为脚本运行改配置</p>
+<h4 id="修改inventoryhosts">修改<code>inventory/hosts</code></h4>
+<ul>
+<li><code>inventory</code>目录存放了简单的example可以参考下，这里介绍下一些其他场景。</li>
+<li>如果master的机器网卡名不一样可以下面这样写<code>INTERFACE_NAME</code></li>
+<li><code>[etcd]</code>不写的话默认在master的每个成员上部署，etcd的名字请写<code>clusterName</code></li>
+<li>如果机器系统准备好的时候就设置了hostname则删掉<code>hostname=xxx</code>的部分</li>
+</ul>
+<pre><code class="language-shell">[master]
+10.0.43.71 hostname=k8s-m1 nodename=10.0.43.71 clusterName=etcd-001
+10.0.43.72 hostname=k8s-m2 nodename=10.0.43.72 clusterName=etcd-002
+10.0.43.73 hostname=k8s-m3 nodename=10.0.43.73 clusterName=etcd-003
+</code></pre>
+<p>如果每台机器密码不一样参照<code>inventory/hosts</code>最下面那样写</p>
+<h4 id="修改group_varsallyml">修改<code>group_vars/all.yml</code></h4>
+<p><img src="https://maguichang.github.io/post-images/1589167344522.png" alt="" loading="lazy"><br>
+这里介绍一些可能需要修改的字段</p>
+<ul>
+<li>
+<p><code>ansible_ssh_pass</code>为ansible基于ssh的密码</p>
+</li>
+<li>
+<p><code>VIP</code>为HA的vip，这里我看到很多人VIP瞎写缺少基本的网络知识，我部署的环境网络掩码是24位，网关是<code>172.16.1.254</code>,也就是说VIP只可能在172.16.1.x里取。不会算的在网上找个在线cidr计算下，这里不要乱写ip。这里我环境的VIP是172.16.1.240，可以在一个机器上使用<code>ip addr add $VIP/$MASK dev $interface</code>手动添加vip后另一个机器ping下看看能不能通，能就代表能使用，测试完后把add改为del删除vip。</p>
+</li>
+<li>
+<p><code>certSANs</code>是证书里的域名和预留ip，默认的不要动，只能新加</p>
+</li>
+<li>
+<p><code>nodeStatusUpdate</code>见 <a href="https://github.com/zhangguanzhang/Kubernetes-ansible/wiki/nodeStatusUpdate">https://github.com/zhangguanzhang/Kubernetes-ansible/wiki/nodeStatusUpdate</a></p>
+</li>
+<li>
+<p><code>KUBE_VERSION</code>和<code>ETCD_version</code> 是给ds的yaml用，二进制需要改版本的话改下载脚本而不是这里，以及这俩变量用来判断渲染一些yaml文件</p>
+</li>
+<li>
+<p><code>flanneld.type</code>如果不是云上而是在自己的机房或者虚拟化虚机跑, 可以把<code>vxlan</code>模式改成<code>host-gw</code>模式</p>
+</li>
+<li>
+<p>如果未来会部署多套集群，pod和svc的cidr最好要提前分配下不要整成默认的10.96和10.244，可能未来会把两个集群的pod整成互通，关于cidr不要乱写，例如<code>10.95.0.0/12</code>实际上是在<code>10.80.0.0/12</code>的范围里，不会确定可以在线找个cidr计算下</p>
+</li>
+<li>
+<p>某些用户例如三台机器都是master+node，没有纯node，想在ipvs模式下从VIP:nodePort去访问集群暴露的服务的话, 记得<code>VIP_NETMASK</code>改成32，原因见 <a href="https://github.com/kubernetes/kubernetes/issues/75443">https://github.com/kubernetes/kubernetes/issues/75443</a> ，不改掩码的话也可以配置<code>roles/CoreAddons/templates/kube-proxy.conf.j2</code>指定bind范围</p>
+</li>
+<li>
+<p>修改网络模式</p>
+<figure data-type="image" tabindex="1"><img src="https://maguichang.github.io/post-images/1589167334737.png" alt="" loading="lazy"></figure>
+</li>
+</ul>
+<pre><code>nodePortAddresses:
+  - 172.16.1.0/24 #根据实际cidr写
+</code></pre>
+<h4 id="安装ansible">安装ansible</h4>
+<pre><code>bash scripts/Install-ansible.sh
+</code></pre>
+<p>离线安装ansible的话可以在页面找最新版本 <a href="https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/%EF%BC%8C">https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/，</a> 把rpm包先下载下来用yum解决依赖</p>
+<pre><code>yum install wget -y 1 &gt; /dev/null
+wget https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/ansible-2.8.5-1.el7.ans.noarch.rpm
+yum localinstall ansible-2.8.5-1.el7.ans.noarch.rpm -y
+</code></pre>
+<h4 id="测试ansible是否可达机器">测试ansible是否可达机器</h4>
+<pre><code class="language-bash">[root@k8s-m1 Kubernetes-ansible]# ansible all -m ping
+10.0.43.74 | SUCCESS =&gt; {
+    &quot;ansible_facts&quot;: {
+        &quot;discovered_interpreter_python&quot;: &quot;/usr/bin/python&quot;
+    }, 
+    &quot;changed&quot;: false, 
+    &quot;ping&quot;: &quot;pong&quot;
+}
+10.0.43.71 | SUCCESS =&gt; {
+    &quot;ansible_facts&quot;: {
+        &quot;discovered_interpreter_python&quot;: &quot;/usr/bin/python&quot;
+    }, 
+    &quot;changed&quot;: false, 
+    &quot;ping&quot;: &quot;pong&quot;
+}
+10.0.43.73 | SUCCESS =&gt; {
+    &quot;ansible_facts&quot;: {
+        &quot;discovered_interpreter_python&quot;: &quot;/usr/bin/python&quot;
+    }, 
+    &quot;changed&quot;: false, 
+    &quot;ping&quot;: &quot;pong&quot;
+}
+10.0.43.72 | SUCCESS =&gt; {
+    &quot;ansible_facts&quot;: {
+        &quot;discovered_interpreter_python&quot;: &quot;/usr/bin/python&quot;
+    }, 
+    &quot;changed&quot;: false, 
+    &quot;ping&quot;: &quot;pong&quot;
+}
+</code></pre>
+<h2 id="三-k8s集群安装">三、k8s集群安装</h2>
+<h3 id="31-谨慎用法">3.1 谨慎用法</h3>
+<p>在<code>Kubernetes-ansible</code>目录里</p>
+<h4 id="01-setupyml">01-setup.yml</h4>
+<p>运行<code>ansible-playbook 01-setup.yml</code></p>
+<p>该步骤会设置基础设置+安装时间同步并重启生效，有些系统自带<code>dnsmasq</code>，这里出现<code>Could not find rhe request service dnsmasq</code>忽略。喜欢测试最新内核的人可以带上<code>-e 'kernel=true'</code>会升级到最新的内核。</p>
+<p>执行完后再连上去在剧本目录运行<code>ansible all -m shell -a date</code>看看连通性和时间是否一致，时间不一致则检查chrony服务</p>
+<h4 id="02-dockeryml">02-docker.yml</h4>
+<p>运行<code>ansible-playbook 02-docker.yml</code></p>
+<p>根据<code>group_vars/all.yml</code>里<code>docker.version</code>从aliyun使用yum模块安装docker-ce，如果出现错误可以再来一次，单独为某个节点安装可以运行<code>ansible-playbook 02-docker.yml -e 'run=172.16.1.10'</code>，这个也可以为非k8s以外的机器安装docker。如果机器的docker服务在运行会不安装docker，仅仅配置配置+重启，想强制升级带上'-e force=true'</p>
+<p>1.14-1.15,&lt;1.16.3的版本使用19.03.3以下docker且cg驱动为systemd因为runc报错耗cpu和内存,该<a href="https://github.com/kubernetes/kubernetes/issues/76531#issuecomment-543632711">bug</a>在19.03.3+修复,如果是低版本的docker，可以升级docker后再升级下<code>containerd.io</code>版本</p>
+<pre><code>$ rpm -qa | grep containerd.io
+containerd.io-1.2.10-3.2.el7.x86_64
+</code></pre>
+<h4 id="03-get-binariessh">03-get-binaries.sh</h4>
+<ul>
+<li>这步不是剧本,手动运行<code>bash 03-get-binaries.sh all</code>: 通过docker下载k8s和etcd的二进制文件还有cni插件,觉得不信任可以自己其他方式下载。</li>
+<li>cni压缩包放剧本目录，二进制文件放/usr/local/bin/</li>
+<li>如果是运行剧本机器不是第一个master节点，可以利用上面02的<code>-e 'run=localhost'</code>安装完docker后运行此步下载</li>
+<li>想下载同大版本内的小版本号则更改脚本里的版本号</li>
+</ul>
+<h4 id="04-tlsyml">04-tls.yml</h4>
+<p>运行<code>ansible-playbook 04-tls.yml</code></p>
+<p>生成证书和管理组件的kubeconfig,kubeconfig生成依赖kubectl命令,此步确保已经下载有kubectl.</p>
+<h4 id="05-etcdyml">05-etcd.yml</h4>
+<p>运行<code>ansible-playbook 05-etcd.yml</code></p>
+<h4 id="06-hayml">06-HA.yml</h4>
+<p>运行<code>ansible-playbook 06-HA.yml</code></p>
+<p>keepalived+haproxy, haproxy七层去check apiserver, 四层代理+VIP来高可用 <a href="https://zhangguanzhang.github.io/2019/03/11/k8s-ha/">https://zhangguanzhang.github.io/2019/03/11/k8s-ha/</a></p>
+<h4 id="07-masteryml">07-master.yml</h4>
+<p>运行<code>ansible-playbook 07-master.yml</code></p>
+<pre><code>$ kubectl get cs
+NAME                 STATUS    MESSAGE              ERROR
+controller-manager   Healthy   ok
+scheduler            Healthy   ok
+etcd-2               Healthy   {&quot;health&quot;: &quot;true&quot;}
+etcd-1               Healthy   {&quot;health&quot;: &quot;true&quot;}
+etcd-0               Healthy   {&quot;health&quot;: &quot;true&quot;}
+</code></pre>
+<h4 id="08-bootstrapyml">08-bootstrap.yml</h4>
+<p>运行<code>ansible-playbook 08-bootstrap.yml</code></p>
+<p>生成bootstrap文件给kubelet注册用</p>
+<h4 id="09-nodeyml">09-node.yml</h4>
+<p>运行<code>ansible-playbook 09-node.yml</code></p>
+<p>kubelet,执行完后看看<code>kubectl get node</code>有没有(notReady为正常)，没有就debug,如何debug见 <a href="https://github.com/zhangguanzhang/Kubernetes-ansible/wiki/systemctl-running-debug">https://github.com/zhangguanzhang/Kubernetes-ansible/wiki/systemctl-running-debug</a></p>
+<h4 id="10-addonyml">10-addon.yml</h4>
+<p>运行<code>ansible-playbook 10-addon.yml</code></p>
+<p>此步部署kube-proxy,flannel,coredns,metrics-server。如果flannel二进制跑请运行前下载二进制文件<code>bash 03-get-binaries.sh flanneld</code>,daemonset的话提前拉取镜像使用命令拉取<code>ansible Allnode -m shell -a 'curl -s https://zhangguanzhang.github.io/bash/pull.sh | bash -s -- quay.io/coreos/flannel:v0.11.0-amd64'</code>, flanneld错误的话请把debug的错误信息提交到issue里</p>
+<h3 id="32-勇者部署与31任选一种">3.2 勇者部署(与3.1任选一种)</h3>
+<ul>
+<li>运行完01和02以及<code>03-get-binaries.sh</code>后执行<code>ansible-playbook deploy.yml</code></li>
+</ul>
+<h3 id="33-给机器打role">3.3 给机器打role</h3>
+<pre><code class="language-shell">kubectl label node node_ip node-role.kubernetes.io/master=master
+kubectl label node node_ip node-role.kubernetes.io/node=worker
+# 测试
+[root@k8s-m1 Kubernetes-ansible]# kubectl label node 10.0.43.71 node-role.kubernetes.io/master=master
+node/10.0.43.71 labeled
+[root@k8s-m1 Kubernetes-ansible]# kubectl label node 10.0.43.72 node-role.kubernetes.io/master=master
+node/10.0.43.72 labeled
+[root@k8s-m1 Kubernetes-ansible]# kubectl label node 10.0.43.73 node-role.kubernetes.io/master=master
+node/10.0.43.73 labeled
+
+[root@k8s-m1 Kubernetes-ansible]# kubectl get node
+NAME         STATUS   ROLES           AGE   VERSION
+10.0.43.71   Ready    master,worker   42m   v1.13.12
+10.0.43.72   Ready    master,worker   42m   v1.13.12
+10.0.43.73   Ready    master,worker   42m   v1.13.12
+10.0.43.74   Ready    worker          42m   v1.13.12
+</code></pre>
+<h3 id="34-添加node">3.4 添加node</h3>
+<ol>
+<li>在当前的ansible目录改hosts,添加[newNode]分组写上成员和信息,role是复用的,所以不要在此时修改一些标志位参数,例如flanneld.type和bin</li>
+<li>执行<code>ansible-playbook setup.yml -e 'run=newNode'</code>, 然后等待重启完可以ping通后执行<code>ansible-playbook addNode.yml</code></li>
+<li>然后查看是否添加上</li>
+</ol>
+<h2 id="四-k8s中部署nginx测试">四、k8s中部署nginx测试</h2>
+<ul>
+<li></li>
+</ul>
+<pre><code class="language-yaml">[root@master0 mgc]# cat nginx-deploy.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+</code></pre>
+<pre><code class="language-yaml">[root@master0 mgc]# cat nginx-svc.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: NodePort
+  ports:
+  - port: 8000
+    targetPort: 80
+    nodePort: 31111
+  selector:
+    app: nginx
+</code></pre>
+
+              </div>
+              <div class="toc-container">
+                <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E4%B8%80-%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE%E4%B8%8E%E5%88%86%E5%B8%83">一、集群配置与分布</a></li>
+<li><a href="#%E4%BA%8C-%E5%AE%89%E8%A3%85%E5%87%86%E5%A4%87">二、安装准备</a>
+<ul>
+<li><a href="#21-%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C">2.1 准备工作</a></li>
+<li><a href="#22-%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%AC">2.2 下载脚本</a>
+<ul>
+<li><a href="#%E4%BF%AE%E6%94%B9inventoryhosts">修改<code>inventory/hosts</code></a></li>
+<li><a href="#%E4%BF%AE%E6%94%B9group_varsallyml">修改<code>group_vars/all.yml</code></a></li>
+<li><a href="#%E5%AE%89%E8%A3%85ansible">安装ansible</a></li>
+<li><a href="#%E6%B5%8B%E8%AF%95ansible%E6%98%AF%E5%90%A6%E5%8F%AF%E8%BE%BE%E6%9C%BA%E5%99%A8">测试ansible是否可达机器</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E4%B8%89-k8s%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85">三、k8s集群安装</a>
+<ul>
+<li><a href="#31-%E8%B0%A8%E6%85%8E%E7%94%A8%E6%B3%95">3.1 谨慎用法</a>
+<ul>
+<li><a href="#01-setupyml">01-setup.yml</a></li>
+<li><a href="#02-dockeryml">02-docker.yml</a></li>
+<li><a href="#03-get-binariessh">03-get-binaries.sh</a></li>
+<li><a href="#04-tlsyml">04-tls.yml</a></li>
+<li><a href="#05-etcdyml">05-etcd.yml</a></li>
+<li><a href="#06-hayml">06-HA.yml</a></li>
+<li><a href="#07-masteryml">07-master.yml</a></li>
+<li><a href="#08-bootstrapyml">08-bootstrap.yml</a></li>
+<li><a href="#09-nodeyml">09-node.yml</a></li>
+<li><a href="#10-addonyml">10-addon.yml</a></li>
+</ul>
+</li>
+<li><a href="#32-%E5%8B%87%E8%80%85%E9%83%A8%E7%BD%B2%E4%B8%8E31%E4%BB%BB%E9%80%89%E4%B8%80%E7%A7%8D">3.2 勇者部署(与3.1任选一种)</a></li>
+<li><a href="#33-%E7%BB%99%E6%9C%BA%E5%99%A8%E6%89%93role">3.3 给机器打role</a></li>
+<li><a href="#34-%E6%B7%BB%E5%8A%A0node">3.4 添加node</a></li>
+</ul>
+</li>
+<li><a href="#%E5%9B%9B-k8s%E4%B8%AD%E9%83%A8%E7%BD%B2nginx%E6%B5%8B%E8%AF%95">四、k8s中部署nginx测试</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </article>
+        </div>
+
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://maguichang.github.io/post/k8s-ji-qun-yi-jian-ha-bu-shu/">
+              <h3 class="post-title">
+                k8s 集群一键HA部署
+              </h3>
+            </a>
+          </div>
+        
+
+        
+
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+  <a class="rss" href="https://maguichang.github.io/atom.xml" target="_blank">
+    <i class="ri-rss-line"></i> RSS
+  </a>
+</div>
+
+      </div>
+    </div>
+
+    <script>
+      hljs.initHighlightingOnLoad()
+
+      let mainNavLinks = document.querySelectorAll(".markdownIt-TOC a");
+
+      // This should probably be throttled.
+      // Especially because it triggers during smooth scrolling.
+      // https://lodash.com/docs/4.17.10#throttle
+      // You could do like...
+      // window.addEventListener("scroll", () => {
+      //    _.throttle(doThatStuff, 100);
+      // });
+      // Only not doing it here to keep this Pen dependency-free.
+
+      window.addEventListener("scroll", event => {
+        let fromTop = window.scrollY;
+
+        mainNavLinks.forEach((link, index) => {
+          let section = document.getElementById(decodeURI(link.hash).substring(1));
+          let nextSection = null
+          if (mainNavLinks[index + 1]) {
+            nextSection = document.getElementById(decodeURI(mainNavLinks[index + 1].hash).substring(1));
+          }
+          if (section.offsetTop <= fromTop) {
+            if (nextSection) {
+              if (nextSection.offsetTop > fromTop) {
+                link.classList.add("current");
+              } else {
+                link.classList.remove("current");    
+              }
+            } else {
+              link.classList.add("current");
+            }
+          } else {
+            link.classList.remove("current");
+          }
+        });
+      });
+
+    </script>
+  </body>
+</html>

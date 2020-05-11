@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://maguichang.github.io</id>
     <title>maguichang</title>
-    <updated>2020-05-07T09:26:25.845Z</updated>
+    <updated>2020-05-11T03:27:46.351Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://maguichang.github.io"/>
     <link rel="self" href="https://maguichang.github.io/atom.xml"/>
@@ -10,6 +10,299 @@
     <logo>https://maguichang.github.io/images/avatar.png</logo>
     <icon>https://maguichang.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, maguichang</rights>
+    <entry>
+        <title type="html"><![CDATA[k8s 集群部署ansible方式]]></title>
+        <id>https://maguichang.github.io/post/k8s-ji-qun-bu-shu-ansible-fang-shi/</id>
+        <link href="https://maguichang.github.io/post/k8s-ji-qun-bu-shu-ansible-fang-shi/">
+        </link>
+        <updated>2020-05-11T03:18:24.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="一-集群配置与分布">一、集群配置与分布</h2>
+<table>
+<thead>
+<tr>
+<th>IP</th>
+<th>Hostname</th>
+<th>Role</th>
+<th>CPU</th>
+<th>Memory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10.0.43.71</td>
+<td>k8s-m1</td>
+<td>master</td>
+<td>2</td>
+<td>16G</td>
+</tr>
+<tr>
+<td>10.0.43.72</td>
+<td>k8s-m2</td>
+<td>master</td>
+<td>2</td>
+<td>16G</td>
+</tr>
+<tr>
+<td>10.0.43.73</td>
+<td>k8s-m3</td>
+<td>master</td>
+<td>2</td>
+<td>16G</td>
+</tr>
+<tr>
+<td>10.0.43.74</td>
+<td>k8s-m4</td>
+<td>worker</td>
+<td>2</td>
+<td>16G</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二-安装准备">二、安装准备</h2>
+<h3 id="21-准备工作">2.1 准备工作</h3>
+<ul>
+<li>升级centos7内核</li>
+<li>配置集群免密登录</li>
+</ul>
+<pre><code class="language-shell"># 更改主机名(集群所有机器)
+[root@k8s-m1 ~]# hostnamectl set-hostname k8s-m1
+[root@k8s-m1 ~]# vi /etc/hosts
+[root@k8s-m1 Kubernetes-ansible]# vi /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.0.1   k8s-m1
+10.0.43.71  k8s-m1
+10.0.43.72  k8s-m2
+10.0.43.73  k8s-m3
+10.0.43.74  k8s-m4
+# 配置ssh免密登录
+[root@k8s-m1 ~]# ssh-keygen -t rsa(3台)
+
+[root@k8s-m1 ~]# cat id_rsa.pub &gt;&gt; authorized_keys（主）
+[root@k8s-m2 ~]# ssh-copy-id -i k8s-m1（从）
+[root@k8s-m3 ~]# ssh-copy-id -i k8s-m1（从）
+[root@k8s-m4 ~]# ssh-copy-id -i k8s-m1（从）
+
+[root@k8s-m1 ~]# chmod 600 authorized_keys（主）
+[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m2:/root/.ssh/（主）
+[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m3:/root/.ssh/（主）
+[root@k8s-m1 ~]# scp /root/.ssh/authorized_keys k8s-m4:/root/.ssh/（主）
+测试免密登录
+
+</code></pre>
+<h3 id="22-下载脚本">2.2 下载脚本</h3>
+<pre><code class="language-shell">yum install -y git &amp;&amp; \
+git clone --recurse-submodules https://github.com/zhangguanzhang/Kubernetes-ansible.git -b v1.13
+</code></pre>
+<p>进入脚本目录</p>
+<pre><code class="language-shell">cd Kubernetes-ansible
+</code></pre>
+<p>为脚本运行改配置</p>
+<h4 id="修改inventoryhosts">修改<code>inventory/hosts</code></h4>
+<ul>
+<li><code>inventory</code>目录存放了简单的example可以参考下，这里介绍下一些其他场景。</li>
+<li>如果master的机器网卡名不一样可以下面这样写<code>INTERFACE_NAME</code></li>
+<li><code>[etcd]</code>不写的话默认在master的每个成员上部署，etcd的名字请写<code>clusterName</code></li>
+<li>如果机器系统准备好的时候就设置了hostname则删掉<code>hostname=xxx</code>的部分</li>
+</ul>
+<pre><code class="language-shell">[master]
+10.0.43.71 hostname=k8s-m1 nodename=10.0.43.71 clusterName=etcd-001
+10.0.43.72 hostname=k8s-m2 nodename=10.0.43.72 clusterName=etcd-002
+10.0.43.73 hostname=k8s-m3 nodename=10.0.43.73 clusterName=etcd-003
+</code></pre>
+<p>如果每台机器密码不一样参照<code>inventory/hosts</code>最下面那样写</p>
+<h4 id="修改group_varsallyml">修改<code>group_vars/all.yml</code></h4>
+<p><img src="https://maguichang.github.io/post-images/1589167344522.png" alt="" loading="lazy"><br>
+这里介绍一些可能需要修改的字段</p>
+<ul>
+<li>
+<p><code>ansible_ssh_pass</code>为ansible基于ssh的密码</p>
+</li>
+<li>
+<p><code>VIP</code>为HA的vip，这里我看到很多人VIP瞎写缺少基本的网络知识，我部署的环境网络掩码是24位，网关是<code>172.16.1.254</code>,也就是说VIP只可能在172.16.1.x里取。不会算的在网上找个在线cidr计算下，这里不要乱写ip。这里我环境的VIP是172.16.1.240，可以在一个机器上使用<code>ip addr add $VIP/$MASK dev $interface</code>手动添加vip后另一个机器ping下看看能不能通，能就代表能使用，测试完后把add改为del删除vip。</p>
+</li>
+<li>
+<p><code>certSANs</code>是证书里的域名和预留ip，默认的不要动，只能新加</p>
+</li>
+<li>
+<p><code>nodeStatusUpdate</code>见 <a href="https://github.com/zhangguanzhang/Kubernetes-ansible/wiki/nodeStatusUpdate">https://github.com/zhangguanzhang/Kubernetes-ansible/wiki/nodeStatusUpdate</a></p>
+</li>
+<li>
+<p><code>KUBE_VERSION</code>和<code>ETCD_version</code> 是给ds的yaml用，二进制需要改版本的话改下载脚本而不是这里，以及这俩变量用来判断渲染一些yaml文件</p>
+</li>
+<li>
+<p><code>flanneld.type</code>如果不是云上而是在自己的机房或者虚拟化虚机跑, 可以把<code>vxlan</code>模式改成<code>host-gw</code>模式</p>
+</li>
+<li>
+<p>如果未来会部署多套集群，pod和svc的cidr最好要提前分配下不要整成默认的10.96和10.244，可能未来会把两个集群的pod整成互通，关于cidr不要乱写，例如<code>10.95.0.0/12</code>实际上是在<code>10.80.0.0/12</code>的范围里，不会确定可以在线找个cidr计算下</p>
+</li>
+<li>
+<p>某些用户例如三台机器都是master+node，没有纯node，想在ipvs模式下从VIP:nodePort去访问集群暴露的服务的话, 记得<code>VIP_NETMASK</code>改成32，原因见 <a href="https://github.com/kubernetes/kubernetes/issues/75443">https://github.com/kubernetes/kubernetes/issues/75443</a> ，不改掩码的话也可以配置<code>roles/CoreAddons/templates/kube-proxy.conf.j2</code>指定bind范围</p>
+</li>
+<li>
+<p>修改网络模式</p>
+<figure data-type="image" tabindex="1"><img src="https://maguichang.github.io/post-images/1589167334737.png" alt="" loading="lazy"></figure>
+</li>
+</ul>
+<pre><code>nodePortAddresses:
+  - 172.16.1.0/24 #根据实际cidr写
+</code></pre>
+<h4 id="安装ansible">安装ansible</h4>
+<pre><code>bash scripts/Install-ansible.sh
+</code></pre>
+<p>离线安装ansible的话可以在页面找最新版本 <a href="https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/%EF%BC%8C">https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/，</a> 把rpm包先下载下来用yum解决依赖</p>
+<pre><code>yum install wget -y 1 &gt; /dev/null
+wget https://releases.ansible.com/ansible/rpm/release/epel-7-x86_64/ansible-2.8.5-1.el7.ans.noarch.rpm
+yum localinstall ansible-2.8.5-1.el7.ans.noarch.rpm -y
+</code></pre>
+<h4 id="测试ansible是否可达机器">测试ansible是否可达机器</h4>
+<pre><code class="language-bash">[root@k8s-m1 Kubernetes-ansible]# ansible all -m ping
+10.0.43.74 | SUCCESS =&gt; {
+    &quot;ansible_facts&quot;: {
+        &quot;discovered_interpreter_python&quot;: &quot;/usr/bin/python&quot;
+    }, 
+    &quot;changed&quot;: false, 
+    &quot;ping&quot;: &quot;pong&quot;
+}
+10.0.43.71 | SUCCESS =&gt; {
+    &quot;ansible_facts&quot;: {
+        &quot;discovered_interpreter_python&quot;: &quot;/usr/bin/python&quot;
+    }, 
+    &quot;changed&quot;: false, 
+    &quot;ping&quot;: &quot;pong&quot;
+}
+10.0.43.73 | SUCCESS =&gt; {
+    &quot;ansible_facts&quot;: {
+        &quot;discovered_interpreter_python&quot;: &quot;/usr/bin/python&quot;
+    }, 
+    &quot;changed&quot;: false, 
+    &quot;ping&quot;: &quot;pong&quot;
+}
+10.0.43.72 | SUCCESS =&gt; {
+    &quot;ansible_facts&quot;: {
+        &quot;discovered_interpreter_python&quot;: &quot;/usr/bin/python&quot;
+    }, 
+    &quot;changed&quot;: false, 
+    &quot;ping&quot;: &quot;pong&quot;
+}
+</code></pre>
+<h2 id="三-k8s集群安装">三、k8s集群安装</h2>
+<h3 id="31-谨慎用法">3.1 谨慎用法</h3>
+<p>在<code>Kubernetes-ansible</code>目录里</p>
+<h4 id="01-setupyml">01-setup.yml</h4>
+<p>运行<code>ansible-playbook 01-setup.yml</code></p>
+<p>该步骤会设置基础设置+安装时间同步并重启生效，有些系统自带<code>dnsmasq</code>，这里出现<code>Could not find rhe request service dnsmasq</code>忽略。喜欢测试最新内核的人可以带上<code>-e 'kernel=true'</code>会升级到最新的内核。</p>
+<p>执行完后再连上去在剧本目录运行<code>ansible all -m shell -a date</code>看看连通性和时间是否一致，时间不一致则检查chrony服务</p>
+<h4 id="02-dockeryml">02-docker.yml</h4>
+<p>运行<code>ansible-playbook 02-docker.yml</code></p>
+<p>根据<code>group_vars/all.yml</code>里<code>docker.version</code>从aliyun使用yum模块安装docker-ce，如果出现错误可以再来一次，单独为某个节点安装可以运行<code>ansible-playbook 02-docker.yml -e 'run=172.16.1.10'</code>，这个也可以为非k8s以外的机器安装docker。如果机器的docker服务在运行会不安装docker，仅仅配置配置+重启，想强制升级带上'-e force=true'</p>
+<p>1.14-1.15,&lt;1.16.3的版本使用19.03.3以下docker且cg驱动为systemd因为runc报错耗cpu和内存,该<a href="https://github.com/kubernetes/kubernetes/issues/76531#issuecomment-543632711">bug</a>在19.03.3+修复,如果是低版本的docker，可以升级docker后再升级下<code>containerd.io</code>版本</p>
+<pre><code>$ rpm -qa | grep containerd.io
+containerd.io-1.2.10-3.2.el7.x86_64
+</code></pre>
+<h4 id="03-get-binariessh">03-get-binaries.sh</h4>
+<ul>
+<li>这步不是剧本,手动运行<code>bash 03-get-binaries.sh all</code>: 通过docker下载k8s和etcd的二进制文件还有cni插件,觉得不信任可以自己其他方式下载。</li>
+<li>cni压缩包放剧本目录，二进制文件放/usr/local/bin/</li>
+<li>如果是运行剧本机器不是第一个master节点，可以利用上面02的<code>-e 'run=localhost'</code>安装完docker后运行此步下载</li>
+<li>想下载同大版本内的小版本号则更改脚本里的版本号</li>
+</ul>
+<h4 id="04-tlsyml">04-tls.yml</h4>
+<p>运行<code>ansible-playbook 04-tls.yml</code></p>
+<p>生成证书和管理组件的kubeconfig,kubeconfig生成依赖kubectl命令,此步确保已经下载有kubectl.</p>
+<h4 id="05-etcdyml">05-etcd.yml</h4>
+<p>运行<code>ansible-playbook 05-etcd.yml</code></p>
+<h4 id="06-hayml">06-HA.yml</h4>
+<p>运行<code>ansible-playbook 06-HA.yml</code></p>
+<p>keepalived+haproxy, haproxy七层去check apiserver, 四层代理+VIP来高可用 <a href="https://zhangguanzhang.github.io/2019/03/11/k8s-ha/">https://zhangguanzhang.github.io/2019/03/11/k8s-ha/</a></p>
+<h4 id="07-masteryml">07-master.yml</h4>
+<p>运行<code>ansible-playbook 07-master.yml</code></p>
+<pre><code>$ kubectl get cs
+NAME                 STATUS    MESSAGE              ERROR
+controller-manager   Healthy   ok
+scheduler            Healthy   ok
+etcd-2               Healthy   {&quot;health&quot;: &quot;true&quot;}
+etcd-1               Healthy   {&quot;health&quot;: &quot;true&quot;}
+etcd-0               Healthy   {&quot;health&quot;: &quot;true&quot;}
+</code></pre>
+<h4 id="08-bootstrapyml">08-bootstrap.yml</h4>
+<p>运行<code>ansible-playbook 08-bootstrap.yml</code></p>
+<p>生成bootstrap文件给kubelet注册用</p>
+<h4 id="09-nodeyml">09-node.yml</h4>
+<p>运行<code>ansible-playbook 09-node.yml</code></p>
+<p>kubelet,执行完后看看<code>kubectl get node</code>有没有(notReady为正常)，没有就debug,如何debug见 <a href="https://github.com/zhangguanzhang/Kubernetes-ansible/wiki/systemctl-running-debug">https://github.com/zhangguanzhang/Kubernetes-ansible/wiki/systemctl-running-debug</a></p>
+<h4 id="10-addonyml">10-addon.yml</h4>
+<p>运行<code>ansible-playbook 10-addon.yml</code></p>
+<p>此步部署kube-proxy,flannel,coredns,metrics-server。如果flannel二进制跑请运行前下载二进制文件<code>bash 03-get-binaries.sh flanneld</code>,daemonset的话提前拉取镜像使用命令拉取<code>ansible Allnode -m shell -a 'curl -s https://zhangguanzhang.github.io/bash/pull.sh | bash -s -- quay.io/coreos/flannel:v0.11.0-amd64'</code>, flanneld错误的话请把debug的错误信息提交到issue里</p>
+<h3 id="32-勇者部署与31任选一种">3.2 勇者部署(与3.1任选一种)</h3>
+<ul>
+<li>运行完01和02以及<code>03-get-binaries.sh</code>后执行<code>ansible-playbook deploy.yml</code></li>
+</ul>
+<h3 id="33-给机器打role">3.3 给机器打role</h3>
+<pre><code class="language-shell">kubectl label node node_ip node-role.kubernetes.io/master=master
+kubectl label node node_ip node-role.kubernetes.io/node=worker
+# 测试
+[root@k8s-m1 Kubernetes-ansible]# kubectl label node 10.0.43.71 node-role.kubernetes.io/master=master
+node/10.0.43.71 labeled
+[root@k8s-m1 Kubernetes-ansible]# kubectl label node 10.0.43.72 node-role.kubernetes.io/master=master
+node/10.0.43.72 labeled
+[root@k8s-m1 Kubernetes-ansible]# kubectl label node 10.0.43.73 node-role.kubernetes.io/master=master
+node/10.0.43.73 labeled
+
+[root@k8s-m1 Kubernetes-ansible]# kubectl get node
+NAME         STATUS   ROLES           AGE   VERSION
+10.0.43.71   Ready    master,worker   42m   v1.13.12
+10.0.43.72   Ready    master,worker   42m   v1.13.12
+10.0.43.73   Ready    master,worker   42m   v1.13.12
+10.0.43.74   Ready    worker          42m   v1.13.12
+</code></pre>
+<h3 id="34-添加node">3.4 添加node</h3>
+<ol>
+<li>在当前的ansible目录改hosts,添加[newNode]分组写上成员和信息,role是复用的,所以不要在此时修改一些标志位参数,例如flanneld.type和bin</li>
+<li>执行<code>ansible-playbook setup.yml -e 'run=newNode'</code>, 然后等待重启完可以ping通后执行<code>ansible-playbook addNode.yml</code></li>
+<li>然后查看是否添加上</li>
+</ol>
+<h2 id="四-k8s中部署nginx测试">四、k8s中部署nginx测试</h2>
+<ul>
+<li></li>
+</ul>
+<pre><code class="language-yaml">[root@master0 mgc]# cat nginx-deploy.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+</code></pre>
+<pre><code class="language-yaml">[root@master0 mgc]# cat nginx-svc.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: NodePort
+  ports:
+  - port: 8000
+    targetPort: 80
+    nodePort: 31111
+  selector:
+    app: nginx
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[k8s 集群一键HA部署]]></title>
         <id>https://maguichang.github.io/post/k8s-ji-qun-yi-jian-ha-bu-shu/</id>
@@ -2546,239 +2839,6 @@ mv * ../
 </tr>
 </tbody>
 </table>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[linux基础命令]]></title>
-        <id>https://maguichang.github.io/post/linux-ji-chu-ming-ling/</id>
-        <link href="https://maguichang.github.io/post/linux-ji-chu-ming-ling/">
-        </link>
-        <updated>2020-04-17T03:24:42.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="一-常用基础操作">一、常用基础操作</h2>
-<h3 id="11-查看磁盘大小">1.1 查看磁盘大小</h3>
-<pre><code>df -h
-</code></pre>
-<h3 id="12-查看内存大小">1.2 查看内存大小</h3>
-<pre><code>free -h
-</code></pre>
-<h3 id="13-查看系统信息">1.3 查看系统信息</h3>
-<pre><code>cat /etc/redhat-release
-# 查看cpu信息
-lscpu
-
-# 查看cpu的个数
-cat /proc/cpuinfo| grep &quot;physical id&quot;| sort| uniq| wc -l
-
-# 查看每个物理CPU中core的个数（核数）
-cat /proc/cpuinfo| grep &quot;cpu cores&quot;| uniq
-
-# 查看逻辑CPU的个数
-cat /proc/cpuinfo| grep &quot;processor&quot;| wc -l
-
-# 查看CPU信息（型号）
-cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c
-</code></pre>
-<h3 id="14-查看内核版本与升级内核">1.4 查看内核版本与升级内核</h3>
-<pre><code>uname -a
-</code></pre>
-<ul>
-<li>升级内核</li>
-</ul>
-<pre><code># 导入仓库源
-rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
-# 查看可以使用系统内核包
-yum --disablerepo=&quot;*&quot; --enablerepo=&quot;elrepo-kernel&quot; list available
-# 安装指定的内核
-yum install -y kernel-ml-5.6.10-1.el7.elrepo --enablerepo=elrepo-kernel
-
-grub2-set-default 0
-grub2-mkconfig -o /boot/grub2/grub.cfg
-grubby --default-kernel
-reboot
-</code></pre>
-<h3 id="15-修改主机名">1.5 修改主机名</h3>
-<ul>
-<li>使用这个命令会立即生效且重启也生效</li>
-</ul>
-<pre><code>hostnamectl set-hostname mgc
-
-vim /etc/hosts
-127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-127.0.0.1  mgc
-::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-
-</code></pre>
-<h3 id="16-查看端口号">1.6 查看端口号</h3>
-<ul>
-<li>centos7默认没有 netstat 命令，需要安装 net-tools 工具，yum install -y net-tools</li>
-<li>ss(Socket Statistics的缩写)命令可以用来获取 socket统计信息（查询端口占用），比 netstat 更快速高效</li>
-</ul>
-<pre><code>netstat -tunlp|grep 端口号
-或者
-ss -anlp | grep 端口号
-</code></pre>
-<pre><code>ss命令参数
--n, –numeric 不解析服务名称
--r, –resolve 解析主机名
--a, –all 显示所有套接字（sockets）
--l, –listening 显示监听状态的套接字（sockets）
--o, –options 显示计时器信息
--m, –memory 显示套接字（socket）的内存使用情况
--p, –processes 显示使用套接字（socket）的进程
-</code></pre>
-<h3 id="17-防火墙相关">1.7 防火墙相关</h3>
-<pre><code># centos7
-firewall-cmd --state
-
-service firewalld start 开启
-service firewalld stop 关闭
-</code></pre>
-<ul>
-<li>查看防火墙开放的端口信息</li>
-</ul>
-<pre><code>firewall-cmd --list-ports
-</code></pre>
-<ul>
-<li>新增开放端口</li>
-</ul>
-<pre><code>firewall-cmd --zone=public --add-port=80/tcp --permanent
-
-–-zone 作用域
-–-add-port=80/tcp 添加端口，格式为：端口/通讯协议
-–-permanent 永久生效，没有此参数重启后失效
-</code></pre>
-<ul>
-<li>新增多个端口（区间）</li>
-</ul>
-<pre><code>firewall-cmd --zone=public --add-port=80-85/tcp --permanent
-</code></pre>
-<ul>
-<li>重新加载防火墙规则</li>
-</ul>
-<pre><code>firewall-cmd --reload
-</code></pre>
-<ul>
-<li>删除端口</li>
-</ul>
-<pre><code>firewall-cmd --zone=public --remove-port=80/tcp --permanent
-</code></pre>
-<h3 id="18-杀死进程与查看相关进程">1.8 杀死进程与查看相关进程</h3>
-<pre><code>netstat -antp
-kill -s 9 1827
-
-其中-s 9 制定了传递给进程的信号是９，即强制、尽快终止进程。各个终止信号及其作用见附录。
-</code></pre>
-<h3 id="19-查看路由">1.9 查看路由</h3>
-<pre><code>ip  route
-</code></pre>
-<h3 id="110罗列使用cpu资源最多的linux任务输入q退出">1.10罗列使用CPU资源最多的linux任务（输入q退出）</h3>
-<pre><code>top   
-</code></pre>
-<h2 id="二-文件和目录">二、文件和目录</h2>
-<h3 id="21-目录文件基础操作">2.1 目录文件基础操作</h3>
-<pre><code>cd 进入目录
-示例：cd /home 进入home目录    
-cd ../    返回上一级目录
-cd ../..    返回上两级目录
-cd -    返回上次所在目录
-cd ~    返回根目录
-
-
-cp
-cp file1 file1    文件复制
-cp -a
-cp -a dir1 dir2    复制一个目录
-cp -a /tmp/dir1 .     复制一个目录到当前工作目录
-（.代表当前目录）
-
-ls    查看目录中的文件
-ls -a    显示隐藏文件
-ls -l    显示详细信息
-ls -lrt    按时间显示文件（l表示详细列表，r表示反向排序，t表示按时间排序）
-
-pwd    显示工作路径
-
-mkdir dir1    创建dir1目录
-mkdir dir1 dir2    同时创建两个目录
-mkdir -p /tmp/dir1/dir2     创建一个目录树
-
-mv dir1 dir2     移动/重命名一个目录
-
-rm -f file1    删除文件file1
-rm -rf dir1    删除目录dir1及其子目录
-</code></pre>
-<h3 id="22-查看文件内容">2.2 查看文件内容</h3>
-<pre><code>cat file1 从第一个字节开始正向查看文件的内容
-tac file1 从最后一行开始反向查看一个文件的内容
-
-
-head -2 file1 查看一个文件的前两行
-more file1 查看一个长文件的内容
-
-tail -3 file1 查看一个文件的最后三行
-tail -f file1 实时查看文件内容
-</code></pre>
-<h3 id="23-文本处理">2.3 文本处理</h3>
-<pre><code>grep str /tmp/test 在文件 '/tmp/test' 中查找 &quot;str&quot;
-grep ^str /tmp/test 在文件 '/tmp/test' 中查找以 &quot;str&quot; 开始的行
-grep [0-9] /tmp/test 查找 '/tmp/test' 文件中所有包含数字的行
-grep str -r /tmp/* 在目录 '/tmp' 及其子目录中查找 &quot;str&quot;
-diff file1 file2 找出两个文件的不同处
-sdiff file1 file2 以对比的方式显示两个文件的不同
-
-</code></pre>
-<h3 id="24-查找">2.4 查找</h3>
-<pre><code>find / -name file1 从 '/' 开始进入根文件系统查找文件和目录
-find / -user user1 查找属于用户 'user1' 的文件和目录
-find /home/user1 -name \*.bin 在目录 '/home/user1' 中查找以 '.bin'结尾的文件
-find /usr/bin -type f -atime +100 查找在过去100天内未被使用过的执行文件
-find /usr/bin -type f -mtime -10 查找在10天内被创建或者修改过的文件
-locate \*.ps 寻找以 '.ps' 结尾的文件，先运行 'updatedb' 命令
-find -name '*.[ch]' | xargs grep -E'expr'在当前目录及其子目录所有.c和.h文件中查找 'expr'
-find -type f -print0 | xargs -r0 grep -F 'expr'在当前目录及其子目录的常规文件中查找 'expr'
-find -maxdepth 1 -type f | xargs grep -F 'expr' 在当前目录中查找'expr'
-</code></pre>
-<h2 id="三-yum工具">三、yum工具</h2>
-<pre><code>yum -y install [package] 下载并安装一个rpm包
-yum localinstall [package.rpm] 安装一个rpm包，使用你自己的软件仓库解决所有依赖关系
-yum -y update 更新当前系统中安装的所有rpm包
-yum update [package] 更新一个rpm包
-yum remove [package] 删除一个rpm包
-yum list 列出当前系统中安装的所有包
-yum search [package] 在rpm仓库中搜寻软件包
-yum clean [package] 清除缓存目录（/var/cache/yum）下的软件包
-yum clean headers 删除所有头文件
-yum clean all 删除所有缓存的包和头文件
-
-</code></pre>
-<h2 id="四-系统服务">四、系统服务</h2>
-<pre><code>systemctl -at service
-ls /etc/systemd/system/*.service 服务目录
-ls /usr/lib/systemd/system/*.service
-systemctl -t service --state=active 查看活动的服务
-systemctl start name.service 启动服务（name=服务名）
-systemctl stop name.service 停止服务
-systemctl status name.service  查看服务器状态
-systemctl is-enabled name 检查服务是否enabled
-systemctl enable name.service 设置开机服务启动
-systemctl disable name.service 禁用服务
-systemctl daemon-reload  /etc/systemd/system/*.service 创建新的服务 
-</code></pre>
-<h2 id="五-用户相关">五、用户相关</h2>
-<h3 id="51-新建用户">5.1 新建用户</h3>
-<pre><code>adduser testuser //新建testuser 用户 
-passwd testuser //给testuser 用户设置密码
-</code></pre>
-<h3 id="52-建工作组">5.2 建工作组</h3>
-<p>groupadd testgroup //新建test工作组</p>
-<h3 id="53-新建用户同时增加工作组">5.3 新建用户同时增加工作组</h3>
-<pre><code>useradd -g testgroup testuser //新建testuser用户并增加到testgroup工作组
-
-//注：：-g 所属组 -d 家目录 -s 所用的SHELL
-</code></pre>
-<h3 id="54-给已有的用户增加工作组">5.4 给已有的用户增加工作组</h3>
-<p>usermod -G groupname username</p>
 ]]></content>
     </entry>
 </feed>
