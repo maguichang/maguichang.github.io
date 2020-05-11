@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>k8s 集群部署ansible方式 | maguichang</title>
-<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1589186733050">
+<link rel="shortcut icon" href="https://maguichang.github.io/favicon.ico?v=1589190241922">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://maguichang.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="k8s 集群部署ansible方式 | maguichang - Atom Feed" href="https://maguichang.github.io/atom.xml">
@@ -48,7 +48,7 @@ master
       <div class="main-content">
         <div class="site-header">
   <a href="https://maguichang.github.io">
-  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1589186733050" alt="">
+  <img class="avatar" src="https://maguichang.github.io/images/avatar.png?v=1589190241922" alt="">
   </a>
   <h1 class="site-title">
     maguichang
@@ -108,7 +108,7 @@ master
                 2020-05-11
               </span>
               <span>
-                12 min read
+                13 min read
               </span>
               
                 <a href="https://maguichang.github.io/tag/wM45Bf19c/" class="post-tag">
@@ -464,6 +464,21 @@ WantedBy=multi-user.target
 <pre><code class="language-shell"># 重启
 systemctl daemon-reload  &amp;&amp; systemctl restart kube-proxy
 </code></pre>
+<h2 id="六-部署可视化监控工具kuboard">六、部署可视化监控工具kuboard</h2>
+<h3 id="安装">安装</h3>
+<pre><code>kubectl apply -f https://kuboard.cn/install-script/kuboard.yaml
+</code></pre>
+<h3 id="查看kuboard运行状态">查看kuboard运行状态</h3>
+<pre><code>[root@k8s-m1 nginx]# kubectl get pods -l k8s.eip.work/name=kuboard -n kube-system
+NAME                       READY   STATUS    RESTARTS   AGE
+kuboard-6b86c9757b-dn8rm   1/1     Running   0          69s
+</code></pre>
+<h3 id="获取管理员token">获取管理员token</h3>
+<pre><code>[root@k8s-m1 nginx]# kubectl -n kube-system get secret $(kubectl -n kube-system get secret | grep kuboard-user | awk '{print $1}') -o go-template='{{.data.token}}' | base64 -d
+eyJhbGciOiJFUzUxMiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJvYXJkLXVzZXItdG9rZW4tYjI4aDIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoia3Vib2FyZC11c2VyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMWJjNzI1M2MtOTM2Yi0xMWVhLTlmMDAtMGNkYTQxMWQ3ZTQ4Iiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Omt1YmUtc3lzdGVtOmt1Ym9hcmQtdXNlciJ9.AbGjx3zSoAeECge5J5RRLRyMl_U6KyA9MRGJ9CukbwxEWaeJv-QkhH39vFCsHpmWrzfPY-Whau2NNXJfohYtA9fcAP0iokMJRu2h_i9Ftx7cSa0jBN9jsUCIqq0EKxjmzis4C-DY_qX0H4yXzDiagF21baHbAquz3e86KmgJdKIZVm25
+</code></pre>
+<h3 id="访问">访问</h3>
+<p>http://任意一个Worker节点的IP地址:32567/</p>
 
               </div>
               <div class="toc-container">
@@ -507,6 +522,14 @@ systemctl daemon-reload  &amp;&amp; systemctl restart kube-proxy
 </li>
 <li><a href="#%E5%9B%9B-k8s%E4%B8%AD%E9%83%A8%E7%BD%B2nginx%E6%B5%8B%E8%AF%95">四、k8s中部署nginx测试</a></li>
 <li><a href="#%E4%BA%94-%E9%97%AE%E9%A2%98">五、问题</a></li>
+<li><a href="#%E5%85%AD-%E9%83%A8%E7%BD%B2%E5%8F%AF%E8%A7%86%E5%8C%96%E7%9B%91%E6%8E%A7%E5%B7%A5%E5%85%B7kuboard">六、部署可视化监控工具kuboard</a>
+<ul>
+<li><a href="#%E5%AE%89%E8%A3%85">安装</a></li>
+<li><a href="#%E6%9F%A5%E7%9C%8Bkuboard%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81">查看kuboard运行状态</a></li>
+<li><a href="#%E8%8E%B7%E5%8F%96%E7%AE%A1%E7%90%86%E5%91%98token">获取管理员token</a></li>
+<li><a href="#%E8%AE%BF%E9%97%AE">访问</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
